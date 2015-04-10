@@ -94,7 +94,6 @@
     </None>
     <None Include="Projects\CargoApplication\Cargo.toml" />
     <None Include="Projects\CargoApplication\main.rs" />
-    <None Include="Projects\CargoLibrary\Cargo3.toml" />
     <None Include="Projects\CargoLibrary\Cargo.toml" />
     <None Include="Projects\CargoLibrary\lib.rs" />
     <None Include="Projects\CargoLibrary\CargoLibraryProject.rsproj">

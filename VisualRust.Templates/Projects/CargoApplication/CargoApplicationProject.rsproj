@@ -26,7 +26,7 @@
       <Output TaskParameter="Outputs" ItemName="Test2" />
     </Exec>
     <Message Text="@(Test2)" />
-    <Message Text="Cargo build finished.../>
+    <Message Text="Cargo build finished..."/>
   </Target>
   <Target Name="AfterBuild">
   </Target>
