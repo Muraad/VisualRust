@@ -1,17 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
-    <Name>Rust Application</Name>
-    <Description>A project for creating a Rust application.</Description>
-     <Icon>ApplicationProject.ico</Icon>
+    <Name>Rust Cargo Application</Name>
+    <Description>A project for creating a Rust application build with Cargo</Description>
+     <Icon>CargoApplicationProject.ico</Icon>
      <ProjectType>Rust</ProjectType>
      <CreateNewFolder>true</CreateNewFolder>
-     <DefaultName>RustApplication</DefaultName>
+     <DefaultName>RustCargoApplication</DefaultName>
      <ProvideDefaultName>true</ProvideDefaultName>
   </TemplateData>
   <TemplateContent>
-    <Project File="ApplicationProject.rsproj" ReplaceParameters="true">
+    <Project File="CargoApplicationProject.rsproj" ReplaceParameters="true">
+      <ProjectItem TargetFileName="Cargo.toml" ReplaceParameters="true" OpenInEditor="true">Cargo.toml</ProjectItem>
       <ProjectItem TargetFileName="src\main.rs" ReplaceParameters="true" OpenInEditor="true">main.rs</ProjectItem>
+      <Folder Name="tests"/>
+      <Folder Name="benches"/>
     </Project>
   </TemplateContent>
 </VSTemplate>

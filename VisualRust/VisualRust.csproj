@@ -55,10 +55,6 @@
     <CreateVsixContainer>false</CreateVsixContainer>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Debug-CI'">
-    <Content Include="..\VisualRust.Templates\bin\$(Configuration)\ProjectTemplates\Rust\127\ApplicationProject.zip">
-      <Link>ProjectTemplates\ApplicationProject.zip</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="..\VisualRust.Templates\bin\$(Configuration)\ProjectTemplates\Rust\127\LibraryProject.zip">
       <Link>ProjectTemplates\LibraryProject.zip</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -201,6 +197,18 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\VisualRust.Templates\bin\Debug\ProjectTemplates\Rust\1033\ApplicationProject.zip">
+      <Link>ProjectTemplates\ApplicationProject.zip</Link>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\VisualRust.Templates\bin\Debug\ProjectTemplates\Rust\1033\CargoLibraryProject.zip">
+      <Link>ProjectTemplates\CargoLibraryProject.zip</Link>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\VisualRust.Templates\bin\Debug\ProjectTemplates\Rust\127\CargoApplicationProject.zip">
+      <Link>ProjectTemplates\CargoApplicationProject.zip</Link>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="packages.config" />
     <None Include="source.extension.debug.vsixmanifest" />
     <None Include="source.extension.release.vsixmanifest" />

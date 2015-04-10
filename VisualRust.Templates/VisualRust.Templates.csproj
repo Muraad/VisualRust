@@ -84,18 +84,29 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Projects\Application\ApplicationProject.ico" />
     <None Include="Projects\Application\ApplicationProject.rsproj">
       <SubType>Designer</SubType>
     </None>
     <None Include="Projects\Application\main.rs" />
+    <None Include="Projects\CargoApplication\CargoApplicationProject.ico" />
+    <None Include="Projects\CargoApplication\CargoApplicationProject.rsproj">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Projects\CargoApplication\Cargo.toml" />
+    <None Include="Projects\CargoApplication\main.rs" />
+    <None Include="Projects\CargoLibrary\Cargo3.toml" />
+    <None Include="Projects\CargoLibrary\Cargo.toml" />
+    <None Include="Projects\CargoLibrary\lib.rs" />
+    <None Include="Projects\CargoLibrary\CargoLibraryProject.rsproj">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Projects\Library\LibraryProject.rsproj">
       <SubType>Designer</SubType>
     </None>
     <None Include="Projects\Library\lib.rs" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="Projects\Application\ApplicationProject.vstemplate">
+    <VSTemplate Include="Projects\CargoApplication\CargoApplicationProject.vstemplate">
       <SubType>Designer</SubType>
       <Language>Rust</Language>
       <Culture>127</Culture>
@@ -117,6 +128,22 @@
       <SubType>Designer</SubType>
       <Language>Rust</Language>
       <Culture>127</Culture>
+    </VSTemplate>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Projects\CargoLibrary\CargoLibraryProject.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <VSTemplate Include="Projects\Application\ApplicationProject.vstemplate">
+      <SubType>Designer</SubType>
+    </VSTemplate>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Projects\Application\ApplicationProject.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <VSTemplate Include="Projects\CargoLibrary\CargoLibraryProject.vstemplate">
+      <SubType>Designer</SubType>
     </VSTemplate>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
