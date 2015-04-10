@@ -64,6 +64,12 @@
         <File Id="File_VisualRust_Build_dll"
               Source="$(var.VisualRust.Build.TargetDir)VisualRust.Build.dll"
               KeyPath="yes" />
+      </Component>      
+        <Component Id="Cmp_VisualRust_Shared_dll"
+                 Guid="{250C2941-7DB0-4CC0-AA31-F4B0F4AA0DB0}">
+        <File Id="File_VisualRust_Shared_dll"
+              Source="$(var.VisualRust.Build.TargetDir)VisualRust.Shared.dll"
+              KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Product>
