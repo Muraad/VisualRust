@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.Project;
+﻿using Microsoft.VisualStudioTools.Project;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -7,39 +7,39 @@ using System.Runtime.InteropServices;
 
 namespace VisualRust.Project
 {
-    [CLSCompliant(false), ComVisible(true)]
+    [ComVisible(true)]
     abstract public class FileNodePropertiesBase : NodeProperties
     {
         [SRCategoryAttribute(SR.Misc)]
-        [LocDisplayName(SR.FileName)]
+        [SRDisplayName(SR.FileName)]
         [SRDescriptionAttribute(SR.FileNameDescription)]
         public string FileName
         {
             get
             {
-                return this.Node.Caption;
+                return this.HierarchyNode.Caption;
             }
             set
             {
-                this.Node.SetEditLabel(value);
+                this.HierarchyNode.SetEditLabel(value);
             }
         }
 
         [SRCategoryAttribute(SR.Misc)]
-        [LocDisplayName(SR.FullPath)]
+        [SRDisplayName(SR.FullPath)]
         [SRDescriptionAttribute(SR.FullPathDescription)]
         public string FullPath
         {
             get
             {
-                return this.Node.Url;
+                return this.HierarchyNode.Url;
             }
         }
 
         [Browsable(false)]
         public string URL
         {
-            get { return this.Node.Url; }
+            get { return this.HierarchyNode.Url; }
         }
 
         [Browsable(false)]
@@ -47,11 +47,11 @@ namespace VisualRust.Project
         {
             get
             {
-                return Path.GetExtension(this.Node.Caption);
+                return Path.GetExtension(this.HierarchyNode.Caption);
             }
         }
 
-        public FileNodePropertiesBase(HierarchyNode node)
+        internal FileNodePropertiesBase(HierarchyNode node)
             : base(node)
         { }
 
@@ -61,7 +61,7 @@ namespace VisualRust.Project
         }
     }
 
-    [CLSCompliant(false), ComVisible(true)]
+    [ComVisible(true)]
     public class FileNodeProperties : FileNodePropertiesBase
     {
         [CategoryAttribute("Advanced")]
@@ -80,11 +80,11 @@ namespace VisualRust.Project
 
         public override string GetClassName()
         {
-            return "VisualRust.Project.TrackedFileNodeProperties";
+            return "File Properties";
         }
     }
 
-    [CLSCompliant(false), ComVisible(true)]
+    [ComVisible(true)]
     public class ReferencedFileNodeProperties : FileNodePropertiesBase
     {
         [CategoryAttribute("Advanced")]
@@ -101,7 +101,28 @@ namespace VisualRust.Project
 
         public override string GetClassName()
         {
-            return "VisualRust.Project.UntrackedFileNodeProperties";
+            return "File Properties";
+        }
+    }
+
+    [ComVisible(true)]
+    public class ExcludedFileNodeProperties : FileNodePropertiesBase
+    {
+        [CategoryAttribute("Advanced")]
+        [ResourceDisplayName("TrackModules")]
+        [ResourceDescription("TrackModulesReferencedDescription")]
+        public bool TrackModules
+        {
+            get { return false; }
+        }
+
+        internal ExcludedFileNodeProperties(TrackedFileNode node)
+            : base(node)
+        { }
+
+        public override string GetClassName()
+        {
+            return "File Properties";
         }
     }
 }

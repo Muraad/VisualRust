@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudioTools.Project;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BaseFileNode = Microsoft.VisualStudio.Project.FileNode;
 using OleConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
 using VsCommands = Microsoft.VisualStudio.VSConstants.VSStd97CmdID;
 using VsCommands2K = Microsoft.VisualStudio.VSConstants.VSStd2KCmdID;
@@ -17,7 +16,7 @@ namespace VisualRust.Project
     class UntrackedFileNode : BaseFileNode
     {
         public UntrackedFileNode(RustProjectNode root, string file)
-            : base(root, null, file)
+            : base(root,  new VirtualProjectElement(root, file), file)
         { }
 
         protected override bool CanUserMove
@@ -30,16 +29,19 @@ namespace VisualRust.Project
             return new ReferencedFileNodeProperties(this);
         }
 
+        public override int ImageIndex { get { return (int)IconIndex.NoIcon; } }
+
         public override object GetIconHandle(bool open)
         {
-            if (IsRustFile)
+            if(!System.IO.File.Exists(this.Url))
+                return this.ProjectMgr.RustImageHandler.GetIconHandle((int)IconIndex.ZombieUntrackedRustFile);
+            else
                 return this.ProjectMgr.RustImageHandler.GetIconHandle((int)IconIndex.UntrackedRustFile);
-            return base.GetIconHandle(open);
         }
 
-        protected override int ExecCommandOnNode(Guid cmdGroup, uint cmd, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
+        internal override int ExecCommandOnNode(Guid cmdGroup, uint cmd, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            if (cmdGroup == Microsoft.VisualStudio.Project.VsMenus.guidStandardCommandSet2K && (VsCommands2K)cmd == VsCommands2K.INCLUDEINPROJECT)
+            if (cmdGroup == Microsoft.VisualStudioTools.Project.VsMenus.guidStandardCommandSet2K && (VsCommands2K)cmd == VsCommands2K.INCLUDEINPROJECT)
             {
                 ((RustProjectNode)this.ProjectMgr).IncludeFileNode(this);
                 return VSConstants.S_OK;
@@ -47,15 +49,20 @@ namespace VisualRust.Project
             return base.ExecCommandOnNode(cmdGroup, cmd, nCmdexecopt, pvaIn, pvaOut);
         }
 
-        protected override int QueryStatusOnNode(Guid cmdGroup, uint cmd, IntPtr pCmdText, ref QueryStatusResult result)
+        internal override int QueryStatusOnNode(Guid cmdGroup, uint cmd, IntPtr pCmdText, ref QueryStatusResult result)
         {
-            if (cmdGroup == Microsoft.VisualStudio.Project.VsMenus.guidStandardCommandSet2K
+            if (cmdGroup == Microsoft.VisualStudioTools.Project.VsMenus.guidStandardCommandSet2K
                 && (VsCommands2K)cmd == VsCommands2K.INCLUDEINPROJECT)
             {
                 result |= QueryStatusResult.SUPPORTED | QueryStatusResult.ENABLED;
                 return (int)VSConstants.S_OK;
             }
             return base.QueryStatusOnNode(cmdGroup, cmd, pCmdText, ref result);
+        }
+
+        public override bool GetModuleTracking()
+        {
+            return true;
         }
     }
 }

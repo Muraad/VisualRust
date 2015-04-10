@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Project;
+using Microsoft.VisualStudioTools.Project;
 using Microsoft.VisualStudio.OLE.Interop;
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using OleConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
 using VsCommands = Microsoft.VisualStudio.VSConstants.VSStd97CmdID;
 using VsCommands2K = Microsoft.VisualStudio.VSConstants.VSStd2KCmdID;
+using System.Diagnostics.Contracts;
 
 namespace VisualRust.Project
 {
@@ -19,22 +20,37 @@ namespace VisualRust.Project
         public bool IsEntryPoint { get; set; }
 
         public TrackedFileNode(RustProjectNode root, ProjectElement elm)
-            : base(root, elm, elm.GetFullPathForElement())
+            : base(root, elm, elm.GetMetadata(ProjectFileConstants.Include))
         {
+        }
+
+        public override int ImageIndex
+        {
+            get
+            {
+                int baseIdx = base.ImageIndex;
+                if (baseIdx == (int)ProjectNode.ImageName.MissingFile || baseIdx == (int)ProjectNode.ImageName.ExcludedFile)
+                    return baseIdx;
+                else if (IsRustFile || GetModuleTracking())
+                    return (int)IconIndex.NoIcon;
+                else
+                    return baseIdx;
+            }
         }
 
         public override object GetIconHandle(bool open)
         {
             if (IsRustFile || GetModuleTracking())
-            {
                 return ProjectMgr.RustImageHandler.GetIconHandle((int)IconIndex.RustFile);
-            }
             return base.GetIconHandle(open);
         }
 
         protected override NodeProperties CreatePropertiesObject()
         {
-            return new FileNodeProperties(this);
+            if (this.ItemNode.IsExcluded)
+                return new ExcludedFileNodeProperties(this);
+            else
+                return new FileNodeProperties(this);
         }
 
         private static bool ParseBool(string name)
@@ -45,9 +61,11 @@ namespace VisualRust.Project
             return retValue;
         }
 
-        public bool GetModuleTracking()
+        public override bool GetModuleTracking()
         {
-            string value = this.ItemNode.GetEvaluatedMetadata(ModuleTrackingKey);
+            if (ItemNode.IsExcluded)
+                return false;
+            string value = this.ItemNode.GetMetadata(ModuleTrackingKey);
             if (String.IsNullOrWhiteSpace(value))
                 return true;
             bool retValue;
@@ -58,15 +76,17 @@ namespace VisualRust.Project
 
         public void SetModuleTracking(bool value)
         {
+            if (ItemNode.IsExcluded)
+                throw new InvalidOperationException();
             this.ItemNode.SetMetadata(ModuleTrackingKey, value.ToString());
             if (value)
                 this.ProjectMgr.EnableAutoImport(this);
             else
                 this.ProjectMgr.DisableAutoImport(this);
-            this.ReDraw(UIHierarchyElement.Icon);
+            this.ProjectMgr.ReDrawNode(this, UIHierarchyElement.Icon);
         }
 
-        protected override int ExcludeFromProject()
+        internal override int ExcludeFromProject()
         {
             ((RustProjectNode)this.ProjectMgr).ExcludeFileNode(this);
             return VSConstants.S_OK;
@@ -75,6 +95,14 @@ namespace VisualRust.Project
         protected override bool CanUserMove
         {
             get { return !IsEntryPoint; }
+        }
+
+        internal override int IncludeInProject(bool includeChildren)
+        {
+            Contract.Assert(this.ItemNode.IsExcluded);
+            int result = base.IncludeInProject(includeChildren);
+            ProjectMgr.OnNodeIncluded(this);
+            return result;
         }
     }
 }
