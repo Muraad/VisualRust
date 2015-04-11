@@ -117,61 +117,24 @@ namespace VisualRust
         {
             try
             {
-                OutputString(Microsoft.VisualStudio.VSConstants.OutputWindowPaneGuid.DebugPane_guid, "Hello World in Debug pane");
-                OutputString(Microsoft.VisualStudio.VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid, "Hello World in Build pane");
-                OutputString(Microsoft.VisualStudio.VSConstants.OutputWindowPaneGuid.GeneralPane_guid, "Hello World in General pane");
+                var ivsSolution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
+                var dte = (EnvDTE80.DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+
+                //Get first project details
+                EnvDTE.Project proj = dte.Solution.Projects.Item(1);
+
+                var containingProj = proj.ProjectItems.ContainingProject;
+                OAProject oaProj = containingProj as OAProject;
+                RustProjectNode rustProjNode = oaProj.ProjectNode as RustProjectNode;
+
+                Utils.OutputLine(rustProjNode.BaseURI.AbsoluteUrl);
+                Utils.OutputDebugLine("Hello World in Debug pane");
+                Utils.OutputBuildLine("Hello World in Build pane");
+                Utils.OutputLine("Hello World in General pane");
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show(ex.ToString());
-            }
-
-            // Show a Message Box to prove we were here
-            IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-            Guid clsid = Guid.Empty;
-            int result;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-                       0,
-                       ref clsid,
-                       "VSPackage1",
-                       string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.ToString()),
-                       string.Empty,
-                       0,
-                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-                       OLEMSGICON.OLEMSGICON_INFO,
-                       0,        // false
-                       out result));
-        }
-
-        private void OutputString(Guid guidPane, string text)
-        {
-            const int VISIBLE = 1;
-            const int DO_NOT_CLEAR_WITH_SOLUTION = 0;
-
-            IVsOutputWindow outputWindow;
-            IVsOutputWindowPane outputWindowPane = null;
-            int hr;
-
-            // Get the output window
-            outputWindow = base.GetService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-
-            // The General pane is not created by default. We must force its creation
-            if (guidPane == Microsoft.VisualStudio.VSConstants.OutputWindowPaneGuid.GeneralPane_guid)
-            {
-                hr = outputWindow.CreatePane(guidPane, "General", VISIBLE, DO_NOT_CLEAR_WITH_SOLUTION);
-                Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(hr);
-            }
-
-            // Get the pane
-            hr = outputWindow.GetPane(guidPane, out outputWindowPane);
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(hr);
-
-            // Output the text
-            if (outputWindowPane != null)
-            {
-                outputWindowPane.Activate();
-                outputWindowPane.OutputString(text);
+                Utils.ShowMessageBox("Exception", ex.Message);
             }
         }
 
