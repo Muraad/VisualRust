@@ -237,9 +237,23 @@ namespace VisualRust.Build
                 Process process = new Process();
                 process.StartInfo = psi;
                 StringBuilder error = new StringBuilder();
+                StringBuilder output = new StringBuilder();
 
                 using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+                //using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
                 {
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if(e.Data != null)
+                        {
+                            foreach (RustcParsedMessage msg in ParseOutput(e.Data))
+                                LogRustcMessage(msg);
+                        }
+                        //if (e.Data == null)
+                        //    outputWaitHandle.Set();
+                        //else
+                        //    output.AppendLine(e.Data);
+                    };
                     process.ErrorDataReceived += (sender, e) =>
                     {
                         if (e.Data == null)
@@ -259,13 +273,24 @@ namespace VisualRust.Build
                 }
 
                 string errorOutput = error.ToString();
+                //string outputOutput = output.ToString();
+
                 // We found some warning or errors in the output, print them out
                 IEnumerable<RustcParsedMessage> messages = ParseOutput(errorOutput);
+
+                // Other messages
+                //IEnumerable<RustcParsedMessage> outputMessages = ParseOutput(outputOutput);
+
                 // We found some warning or errors in the output, print them out
                 foreach (RustcParsedMessage msg in messages)
                 {
                     LogRustcMessage(msg);
                 }
+
+                // Print other messages
+                //foreach (RustcParsedMessage msg in outputMessages)
+                //    LogRustcMessage(msg);
+
                 // rustc failed but we couldn't sniff anything from stderr
                 // this could be an internal compiler error or a missing main() function (there are probably more errors without spans)
                 if (process.ExitCode != 0 && !messages.Any())

@@ -19,6 +19,47 @@
     <None Include="src\main.rs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\VisualRust\VisualRust.Rust.targets"></Import>
+
+  <Target Name="CargoBuild">
+    <Message Text="@(Test)" />
+    <Message Text="Starting cargo build --verbose $(MSBuildProjectDirectory)" />
+    <Exec Command="c:\Rust\bin\cargo build --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
+      <Output TaskParameter="Outputs" ItemName="Test2" />
+    </Exec>
+    <Message Text="@(Test2)" />
+    <Message Text="Cargo build finished..."/>
+  </Target>
+  
+  <Target Name="CargoRun">
+    <Message Text="@(Test)" />
+    <Message Text="Starting cargo run --verbose $(MSBuildProjectDirectory)" />
+    <Exec Command="c:\Rust\bin\cargo run --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
+      <Output TaskParameter="Outputs" ItemName="Test2" />
+    </Exec>
+    <Message Text="@(Test2)" />
+    <Message Text="Cargo run finished..."/>
+  </Target>
+
+  <Target Name="CargoUpdate">
+    <Message Text="@(Test)" />
+    <Message Text="Starting cargo update --verbose $(MSBuildProjectDirectory)" />
+    <Exec Command="c:\Rust\bin\cargo update --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
+      <Output TaskParameter="Outputs" ItemName="Test2" />
+    </Exec>
+    <Message Text="@(Test2)" />
+    <Message Text="Cargo update finished..."/>
+  </Target>
+
+  <Target Name="CargoTest">
+    <Message Text="@(Test)" />
+    <Message Text="Starting cargo update --verbose $(MSBuildProjectDirectory)" />
+    <Exec Command="c:\Rust\bin\cargo update --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
+      <Output TaskParameter="Outputs" ItemName="Test2" />
+    </Exec>
+    <Message Text="@(Test2)" />
+    <Message Text="Cargo update finished..."/>
+  </Target>
+  
   <Target Name="BeforeBuild">
     <Message Text="@(Test)" />
     <Message Text="Starting cargo build --verbose $(MSBuildProjectDirectory)" />

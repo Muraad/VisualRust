@@ -10,6 +10,7 @@ namespace VisualRust.Shared
 {
     public class Environment
     {
+
         private const string InnoPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Rust_is1";
         private const string InnoKey = "InstallLocation";
 

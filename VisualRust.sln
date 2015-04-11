@@ -24,16 +24,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRust.Project", "Visua
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRust.Test", "VisualRust.Test\VisualRust.Test.csproj", "{C68F80B6-62AC-44EB-8557-88761524B495}"
 EndProject
-<<<<<<< HEAD
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D7891A45-4194-4367-9505-8F11CC2BED01}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
-=======
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRust.Test.Integration", "VisualRust.Test.Integration\VisualRust.Test.Integration.csproj", "{5276348D-B99D-408B-A16E-4B2C527E7EA0}"
->>>>>>> b1462aea42209622da85da2db7b3b839cfe43037
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualRust.Shared", "VisualRust.Shared\VisualRust.Shared.csproj", "{B99CC9EB-90F2-4040-9E66-418CC7042153}"
 EndProject
