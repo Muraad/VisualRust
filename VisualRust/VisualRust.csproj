@@ -68,6 +68,9 @@
     <Reference Include="Antlr4.Runtime.net45">
       <HintPath>..\packages\Antlr4.Runtime.4.3.0\lib\net45\Antlr4.Runtime.net45.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.ComponentModelHost, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -164,6 +167,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CargoMenuHandler.cs" />
     <Compile Include="Forms\BuildPropertyPage.cs" />
     <Compile Include="Forms\GeneralPropertyPage.cs" />
     <Compile Include="Guids.cs" />
@@ -182,6 +186,7 @@
     <Compile Include="RustCompletionCommandHandler.cs" />
     <Compile Include="RustCompletionSource.cs" />
     <Compile Include="RustTokenTypes.cs" />
+    <Compile Include="TaskMessages.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="RustLanguage.cs" />
     <Compile Include="VisualRustPackage.cs" />

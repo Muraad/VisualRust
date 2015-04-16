@@ -113,6 +113,7 @@
     <Compile Include="Forms\Utils.cs" />
     <Compile Include="IconIndex.cs" />
     <Compile Include="CollectionDifference.cs" />
+    <Compile Include="ProjectThread.cs" />
     <Compile Include="RustConfigProvider.cs" />
     <Compile Include="TrackedFileNode.cs" />
     <Compile Include="FileNodeProperties.cs" />

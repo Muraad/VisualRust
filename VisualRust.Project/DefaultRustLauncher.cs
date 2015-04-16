@@ -25,19 +25,26 @@ namespace VisualRust.Project
         public int LaunchProject(bool debug)
         {
             var startupFilePath = GetProjectStartupFile();
+            if (String.IsNullOrEmpty(startupFilePath))
+                return VSConstants.S_OK;
             return LaunchFile(startupFilePath, debug);
         }
 
         private string GetProjectStartupFile()
         {
-            var startupFilePath = Path.Combine(_project.GetProjectProperty("TargetDir"), _project.GetProjectProperty("TargetFileName"));
+            var targetDir = _project.GetProjectProperty("TargetDir");
+            var targetFileName = _project.GetProjectProperty("TargetFileName");
+
+            var startupFilePath = targetDir == null || targetFileName == null 
+                ? String.Empty 
+                : Path.Combine(targetDir, targetFileName);
 
             //var startupFilePath = _project.GetStartupFile();
             
-            if (string.IsNullOrEmpty(startupFilePath))
-            {
-                throw new ApplicationException("Startup file is not defined in project");
-            }
+            //if (string.IsNullOrEmpty(startupFilePath))
+            //{
+            //    throw new ApplicationException("Startup file is not defined in project");
+            //}
 
             return startupFilePath;
         }

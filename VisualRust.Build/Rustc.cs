@@ -308,7 +308,7 @@ namespace VisualRust.Build
             }
         }
         
-        private IEnumerable<RustcParsedMessage> ParseOutput(string output)
+        private static IEnumerable<RustcParsedMessage> ParseOutput(string output)
         {
             MatchCollection errorMatches = defectRegex.Matches(output);
 

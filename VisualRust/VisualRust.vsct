@@ -6,9 +6,6 @@
   <!--This header contains the command ids for the menus provided by the shell. -->
   <Extern href="vsshlids.h"/>
 
-
-
-
   <!--The Commands section is where we the commands, menus and menu groups are defined.
       This section uses a Guid to identify the package that provides the command defined inside it. -->
   <Commands package="guidVisualRustPkg">
@@ -40,6 +37,7 @@
           <ButtonText>Cargo run</ButtonText>
         </Strings>
       </Button>
+      
       <Button guid="guidVSPackage1CmdSet" id="cmdidCargoBuild" priority="0x0120" type="Button">
         <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic2" />
@@ -47,8 +45,35 @@
           <ButtonText>Cargo build</ButtonText>
         </Strings>
       </Button>
+      
+      <!--Button guid="guidVSPackage1CmdSet" id="cmdidCargoNew" priority="0x0130" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Cargo build</ButtonText>
+        </Strings>
+      </Button-->
 
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoUpdate" priority="0x0140" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Cargo update</ButtonText>
+        </Strings>
+      </Button>
 
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoTest" priority="0x0150" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Cargo test</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoBench" priority="0x0160" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Cargo bench</ButtonText>
+        </Strings>
+      </Button>
+      
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -78,6 +103,9 @@
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="cmdidCargoRun" value="0x0100" />
       <IDSymbol name="cmdidCargoBuild" value="0x0120" />
+      <IDSymbol name="cmdidCargoUpdate" value="0x0140" />
+      <IDSymbol name="cmdidCargoTest" value="0x0150" />
+      <IDSymbol name="cmdidCargoBench" value="0x0160" />
     </GuidSymbol>
 
 

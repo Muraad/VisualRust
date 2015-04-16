@@ -105,7 +105,6 @@ namespace Microsoft.VisualStudioTools.Project {
         /// </summary>
         public IDEBuildLogger(IVsOutputWindowPane output, TaskProvider taskProvider, IVsHierarchy hierarchy) {
             UIThread.MustBeCalledFromUIThread();
-
             Utilities.ArgumentNotNull("taskProvider", taskProvider);
             Utilities.ArgumentNotNull("hierarchy", hierarchy);
 

@@ -1,16 +1,25 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">  
+  
   <PropertyGroup>
-    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Configuration Condition="'$(Configuration)' == ''">Run</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>$guid1$</ProjectGuid>
     <OutputType>exe</OutputType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>target\debug\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Build'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Run'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Test'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Bench'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Update'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Clean'" />
+  
+  <!--PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Build|AnyCPU' ">
     <OutputPath>target\release\</OutputPath>
-  </PropertyGroup>
+  </PropertyGroup-->
+  
   <ItemGroup>
     <Folder Include="src\" />
     <Folder Include="tests\" />
@@ -18,57 +27,20 @@
     <None Include="Cargo.toml" />
     <None Include="src\main.rs" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\VisualRust\VisualRust.Rust.targets"></Import>
 
-  <Target Name="CargoBuild">
+  <Import Project="$(MSBuildExtensionsPath)\VisualRust\VisualRust.Cargo.targets"/>
+  
+  <!--Target Name="BeforeBuild">
     <Message Text="@(Test)" />
-    <Message Text="Starting cargo build --verbose $(MSBuildProjectDirectory)" />
-    <Exec Command="c:\Rust\bin\cargo build --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
+    <Message Text="Starting cargo build $(MSBuildProjectDirectory)" />
+    <Exec Command="c:\Rust\bin\cargo build" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
       <Output TaskParameter="Outputs" ItemName="Test2" />
     </Exec>
     <Message Text="@(Test2)" />
     <Message Text="Cargo build finished..."/>
-  </Target>
-  
-  <Target Name="CargoRun">
-    <Message Text="@(Test)" />
-    <Message Text="Starting cargo run --verbose $(MSBuildProjectDirectory)" />
-    <Exec Command="c:\Rust\bin\cargo run --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
-      <Output TaskParameter="Outputs" ItemName="Test2" />
-    </Exec>
-    <Message Text="@(Test2)" />
-    <Message Text="Cargo run finished..."/>
-  </Target>
-
-  <Target Name="CargoUpdate">
-    <Message Text="@(Test)" />
-    <Message Text="Starting cargo update --verbose $(MSBuildProjectDirectory)" />
-    <Exec Command="c:\Rust\bin\cargo update --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
-      <Output TaskParameter="Outputs" ItemName="Test2" />
-    </Exec>
-    <Message Text="@(Test2)" />
-    <Message Text="Cargo update finished..."/>
-  </Target>
-
-  <Target Name="CargoTest">
-    <Message Text="@(Test)" />
-    <Message Text="Starting cargo update --verbose $(MSBuildProjectDirectory)" />
-    <Exec Command="c:\Rust\bin\cargo update --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
-      <Output TaskParameter="Outputs" ItemName="Test2" />
-    </Exec>
-    <Message Text="@(Test2)" />
-    <Message Text="Cargo update finished..."/>
-  </Target>
-  
-  <Target Name="BeforeBuild">
-    <Message Text="@(Test)" />
-    <Message Text="Starting cargo build --verbose $(MSBuildProjectDirectory)" />
-    <Exec Command="c:\Rust\bin\cargo build --verbose" WorkingDirectory="$(MSBuildProjectDirectory)" Outputs="@(Test)">
-      <Output TaskParameter="Outputs" ItemName="Test2" />
-    </Exec>
-    <Message Text="@(Test2)" />
-    <Message Text="Cargo build finished..."/>
-  </Target>
+  </Target-->
+  <Target Name="BeforeBuild"/>
   <Target Name="AfterBuild">
   </Target>
+
 </Project>

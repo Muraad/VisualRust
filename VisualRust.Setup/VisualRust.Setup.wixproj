@@ -48,6 +48,14 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\VisualRust.CargoBuild\VisualRust.CargoBuild.csproj">
+      <Name>VisualRust.CargoBuild</Name>
+      <Project>{60720913-e791-4271-aaae-45548adb0d87}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\VisualRust.Shared\VisualRust.Shared.csproj">
       <Name>VisualRust.Shared</Name>
       <Project>{b99cc9eb-90f2-4040-9e66-418cc7042153}</Project>

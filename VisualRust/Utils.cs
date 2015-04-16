@@ -201,36 +201,36 @@ namespace VisualRust
                        out result));
         }
 
-        internal static void OutputDebugLine(string category, string text)
+        internal static void PrintToDebug(string category, string text)
         {
-            text = "[" + category + "]";
+            text = "[" + category + "]    ";
             OutputLine(VSConstants.OutputWindowPaneGuid.DebugPane_guid, text);
         }
 
-        internal static void OutputBuildLine(string category, string text)
+        internal static void PrintToBuild(string category, string text)
         {
-            text = "[" + category + "]";
+            text = "[" + category + "]    " + text;
             OutputLine(VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid, text);
         }
 
-        internal static void OutputLine(string category, string text)
+        internal static void PrintToGeneral(string category, string text)
         {
-            text = "[" + category + "]";
+            text = "[" + category + "]    ";
             OutputLine(VSConstants.OutputWindowPaneGuid.GeneralPane_guid, text);
         }
         
 
-        internal static void OutputDebugLine(string text)
+        internal static void PrintToDebug(string text)
         {
             OutputLine(VSConstants.OutputWindowPaneGuid.DebugPane_guid, text);
         }
 
-        internal static void OutputBuildLine(string text)
+        internal static void PrintToBuild(string text)
         {
             OutputLine(VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid, text);
         }
 
-        internal static void OutputLine(string text)
+        internal static void PrintToGeneral(string text)
         {
             OutputLine(VSConstants.OutputWindowPaneGuid.GeneralPane_guid, text);
         }
@@ -241,6 +241,33 @@ namespace VisualRust
         }
 
         internal static void OutputString(Guid guidPane, string text)
+        {
+            IVsOutputWindowPane outputWindowPane = GetOutputWindowPane(guidPane);
+
+            // Output the text
+            if (outputWindowPane != null)
+            {
+                outputWindowPane.Activate();
+                outputWindowPane.OutputString(text);
+            }
+        }
+
+        public static IVsOutputWindowPane GetDebugWindowPane()
+        {
+            return GetOutputWindowPane(VSConstants.OutputWindowPaneGuid.DebugPane_guid);
+        }
+
+        public static IVsOutputWindowPane GetGeneralWindowPane()
+        {
+            return GetOutputWindowPane(VSConstants.OutputWindowPaneGuid.GeneralPane_guid);
+        }
+
+        public static IVsOutputWindowPane GetBuildWindowPane()
+        {
+            return GetOutputWindowPane(VSConstants.OutputWindowPaneGuid.BuildOutputPane_guid);
+        }
+
+        public static IVsOutputWindowPane GetOutputWindowPane(Guid guidPane)
         {
             const int VISIBLE = 1;
             const int DO_NOT_CLEAR_WITH_SOLUTION = 0;
@@ -262,13 +289,7 @@ namespace VisualRust
             // Get the pane
             hr = outputWindow.GetPane(guidPane, out outputWindowPane);
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(hr);
-
-            // Output the text
-            if (outputWindowPane != null)
-            {
-                outputWindowPane.Activate();
-                outputWindowPane.OutputString(text);
-            }
+            return outputWindowPane;
         }
     }
 

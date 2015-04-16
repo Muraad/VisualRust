@@ -65,6 +65,7 @@ namespace VisualRust
     public class VisualRustPackage : CommonProjectPackage
     {
         private RunningDocTableEventsListener docEventsListener;
+        private CargoMenuHandler cargoMenuHandler = new CargoMenuHandler();
 
         /// <summary>
         /// Default constructor of the package.
@@ -82,6 +83,7 @@ namespace VisualRust
         /////////////////////////////////////////////////////////////////////////////
         // Overridden Package Implementation
         #region Package Members
+
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
@@ -92,50 +94,9 @@ namespace VisualRust
             base.Initialize();
             docEventsListener = new RunningDocTableEventsListener((IVsRunningDocumentTable)GetService(typeof(SVsRunningDocumentTable)));
             Racer.AutoCompleter.Init();
-
-            // Add our command handlers for menu (commands must exist in the .vsct file)
-            OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (null != mcs)
-            {
-                // Create the command for the menu item.
-                CommandID menuCommandID = new CommandID(GuidList.guidVSPackage1CmdSet, (int)PkgCmdIDList.cmdidCargoRun);
-                MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID);
-                mcs.AddCommand(menuItem);
-
-                menuCommandID = new CommandID(GuidList.guidVSPackage1CmdSet, (int)PkgCmdIDList.cmdidCargoBuild);
-                menuItem = new MenuCommand(MenuItemCallback, menuCommandID);
-                mcs.AddCommand(menuItem);
-            }
-        }
-
-        /// <summary>
-        /// This function is the callback used to execute a command when the a menu item is clicked.
-        /// See the Initialize method to see how the menu item is associated to this function using
-        /// the OleMenuCommandService service and the MenuCommand class.
-        /// </summary>
-        public void MenuItemCallback(object sender, EventArgs e)
-        {
-            try
-            {
-                var ivsSolution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
-                var dte = (EnvDTE80.DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
-
-                //Get first project details
-                EnvDTE.Project proj = dte.Solution.Projects.Item(1);
-
-                var containingProj = proj.ProjectItems.ContainingProject;
-                OAProject oaProj = containingProj as OAProject;
-                RustProjectNode rustProjNode = oaProj.ProjectNode as RustProjectNode;
-
-                Utils.OutputLine(rustProjNode.BaseURI.AbsoluteUrl);
-                Utils.OutputDebugLine("Hello World in Debug pane");
-                Utils.OutputBuildLine("Hello World in Build pane");
-                Utils.OutputLine("Hello World in General pane");
-            }
-            catch (Exception ex)
-            {
-                Utils.ShowMessageBox("Exception", ex.Message);
-            }
+            
+            cargoMenuHandler.Init(GetService(typeof(IMenuCommandService)) as OleMenuCommandService);
+            TaskMessages.Init(this);
         }
 
         protected override void Dispose(bool disposing)

@@ -2308,6 +2308,7 @@ namespace Microsoft.VisualStudioTools.Project {
         /// <param name="output"></param>
         protected virtual void SetOutputLogger(IVsOutputWindowPane output) {
             // Create our logger, if it was not specified
+            
             if (!this.useProvidedLogger || this.buildLogger == null) {
                 // Create the logger
                 var logger = new IDEBuildLogger(output, this.TaskProvider, GetOuterInterface<IVsHierarchy>());
@@ -3054,10 +3055,10 @@ namespace Microsoft.VisualStudioTools.Project {
                     result = InvokeMsBuild(target);
                 } finally {
                     // Unless someone specifically request to use an output window pane, we should not output to it
-                    if (null != output) {
-                        SetOutputLogger(null);
-                        BuildEngine.OnlyLogCriticalEvents = engineLogOnlyCritical;
-                    }
+                    //if (null != output) {
+                    //    SetOutputLogger(null);
+                    //    BuildEngine.OnlyLogCriticalEvents = engineLogOnlyCritical;
+                    //}
                 }
 
                 return result;
