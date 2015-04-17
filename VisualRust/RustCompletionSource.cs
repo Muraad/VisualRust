@@ -96,7 +96,7 @@ namespace VisualRust
                 case CompletableLanguageElement.FnArg:
                     return null;
                 default:
-                    Utils.DebugPrintToOutput("Unhandled language element found in racer autocomplete response: {0}", elType);
+                    ProjectUtil.DebugPrintToOutput("Unhandled language element found in racer autocomplete response: {0}", elType);
                     return null;
             }
         }
@@ -190,7 +190,7 @@ namespace VisualRust
 
                 if (!Enum.TryParse(langElemText, out elType))
                 {
-                    Utils.DebugPrintToOutput("Failed to parse language element found in racer autocomplete response: {0}", langElemText);
+                    ProjectUtil.DebugPrintToOutput("Failed to parse language element found in racer autocomplete response: {0}", langElemText);
                     continue;
                 }
 

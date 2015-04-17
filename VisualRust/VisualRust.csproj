@@ -186,7 +186,6 @@
     <Compile Include="RustCompletionCommandHandler.cs" />
     <Compile Include="RustCompletionSource.cs" />
     <Compile Include="RustTokenTypes.cs" />
-    <Compile Include="TaskMessages.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="RustLanguage.cs" />
     <Compile Include="VisualRustPackage.cs" />

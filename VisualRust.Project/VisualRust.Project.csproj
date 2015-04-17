@@ -60,6 +60,7 @@
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Package.LanguageService.12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
@@ -71,6 +72,7 @@
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -89,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseFileNode.cs" />
+    <Compile Include="CargoUtil.cs" />
     <Compile Include="Configuration\Application.cs">
       <DependentUpon>Application.tt</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -113,8 +116,9 @@
     <Compile Include="Forms\Utils.cs" />
     <Compile Include="IconIndex.cs" />
     <Compile Include="CollectionDifference.cs" />
-    <Compile Include="ProjectThread.cs" />
+    <Compile Include="ProjectWorkPool.cs" />
     <Compile Include="RustConfigProvider.cs" />
+    <Compile Include="TaskMessages.cs" />
     <Compile Include="TrackedFileNode.cs" />
     <Compile Include="FileNodeProperties.cs" />
     <Compile Include="ModuleRemovalResult.cs" />
@@ -141,6 +145,7 @@
     <Compile Include="RustProjectNode.cs" />
     <Compile Include="RustProjectNodeProperties.cs" />
     <Compile Include="UntrackedFolderNode.cs" />
+    <Compile Include="ProjectUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.VisualStudio.Project\Microsoft.VisualStudio.Project.csproj">

@@ -49,14 +49,14 @@ namespace VisualRust.Racer
             string rustSrcPath = Environment.GetEnvironmentVariable("RUST_SRC_PATH");
             if (string.IsNullOrEmpty(rustSrcPath) || !Directory.Exists(rustSrcPath))
             {
-                Utils.PrintToOutput(@"Environment variable RUST_SRC_PATH must exist and point to a rust source dir for autocompletion to work, e.g. 'C:\Rust\src'");
+                ProjectUtil.PrintToOutput(@"Environment variable RUST_SRC_PATH must exist and point to a rust source dir for autocompletion to work, e.g. 'C:\Rust\src'");
             }
 
             // If a racer.exe is found on the path, it is used instead of the bundled racer from $extdir\Racer.
             if (RacerExistsOnPath())
             {
                 racerPath = RacerExecutable;
-                Utils.PrintToOutput("Using racer.exe found in PATH");
+                ProjectUtil.PrintToOutput("Using racer.exe found in PATH");
             }
             else
             {
@@ -111,7 +111,7 @@ namespace VisualRust.Racer
                     // Don't want to hang waiting for the results.
                     if (!process.WaitForExit(TimeoutMillis))
                     {
-                        Utils.DebugPrintToOutput("Autocomplete timed out");
+                        ProjectUtil.DebugPrintToOutput("Autocomplete timed out");
                         return "";
                     }
 
@@ -120,7 +120,7 @@ namespace VisualRust.Racer
             }
             catch (Exception ex)
             {
-                Utils.DebugPrintToOutput("Error executing racer.exe: {0}", ex);
+                ProjectUtil.DebugPrintToOutput("Error executing racer.exe: {0}", ex);
                 return "";
             }
         }

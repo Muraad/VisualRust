@@ -12,6 +12,7 @@ using System.Threading.Tasks;
  using OleConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
 using VsCommands = Microsoft.VisualStudio.VSConstants.VSStd97CmdID;
 using VsCommands2K = Microsoft.VisualStudio.VSConstants.VSStd2KCmdID;
+using VisualRust.Shared;
 
 namespace VisualRust.Project
 {
@@ -73,12 +74,22 @@ namespace VisualRust.Project
         private bool containsEntryPoint;
         internal ModuleTracker ModuleTracker { get; private set; }
 
+        ProjectWorkPool projectPool = null;
+
         public RustProjectNode(CommonProjectPackage package)
             : base(package, Utilities.GetImageList(new System.Drawing.Bitmap(typeof(RustProjectNode).Assembly.GetManifestResourceStream("VisualRust.Project.Resources.IconList.bmp"))))
         {
             this.CanFileNodesHaveChilds = false;
             this.CanProjectDeleteItems = true;
             this.ListenForStartupFileUpdates = false;
+            projectPool = new ProjectWorkPool(this);
+            projectPool.Start(1000);    // The scheduler timer fires every second
+        }
+
+        public override void BeforeClose()
+        {
+            base.BeforeClose();
+            projectPool.Dispose();
         }
 
         public override System.Guid ProjectGuid

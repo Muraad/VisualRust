@@ -28,10 +28,10 @@ namespace VisualRust.Shared
                 redirectStandardOutput:false);
         }
 
-        public static Process Build(string workingDir)
+        public static Process Build(string workingDir, bool printBuildOutput = true)
         {
             Debug.WriteLine("Cargo.Build(" + workingDir + ")");
-            return Start(workingDir, "build");
+            return Start(workingDir, "build", false, false, true, true);
         }
 
         public static Process New(string workingDir)

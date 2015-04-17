@@ -15,6 +15,10 @@ using VisualRust.Project;
 using Microsoft.VisualStudioTools.Project;
 using Microsoft.VisualStudioTools.Project.Automation;
 
+using System.Collections.Generic;
+using VisualRust.Shared;
+using System.Threading;
+
 namespace VisualRust
 {
     /// <summary>
@@ -80,6 +84,24 @@ namespace VisualRust
             Microsoft.VisualStudioTools.UIThread.InitializeAndAlwaysInvokeToCurrentThread();
         }
 
+        public static void WorkerPoolTest()
+        {
+            int numberOfTasks = 500;
+            List<System.Threading.Tasks.Task> tasks = new List<System.Threading.Tasks.Task>(numberOfTasks);
+
+            int counter = 0;
+
+            Debug.WriteLine("\n\nUsing custom static ThreadPool...\n\n");
+            Duration.MeasureAndPrint(i =>
+            {
+                int itmp = i;
+                tasks.Add(Work.Run(() => { counter++; Debug.WriteLine("From task.."); }));
+            },
+                "Custom thread pool",
+                numberOfTasks,
+                () => System.Threading.Tasks.Task.WaitAll(tasks.ToArray()));
+        }
+
         /////////////////////////////////////////////////////////////////////////////
         // Overridden Package Implementation
         #region Package Members
@@ -92,11 +114,15 @@ namespace VisualRust
         protected override void Initialize()
         {
             base.Initialize();
+            //WorkerPoolTest();
             docEventsListener = new RunningDocTableEventsListener((IVsRunningDocumentTable)GetService(typeof(SVsRunningDocumentTable)));
             Racer.AutoCompleter.Init();
             
             cargoMenuHandler.Init(GetService(typeof(IMenuCommandService)) as OleMenuCommandService);
+
+            // These two need an instance of an IServiceProvider
             TaskMessages.Init(this);
+            ProjectUtil.PackageServiceProvider = this;
         }
 
         protected override void Dispose(bool disposing)
