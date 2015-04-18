@@ -10,14 +10,10 @@ namespace VisualRust.Shared
 {
     public class Environment
     {
-<<<<<<< HEAD
-
         private const string InnoPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Rust_is1";
         private const string InnoKey = "InstallLocation";
-=======
         private const string MozillaPath = @"Software\Mozilla Foundation";
         private const string install = "InstallLocation";
->>>>>>> 5828e9d681a99895c4c88d5eb7c4eefc818b04b7
 
         // I'm really torn between "default", "local", "native", "unspecified" and "any"
         public const string DefaultTarget = "default";
