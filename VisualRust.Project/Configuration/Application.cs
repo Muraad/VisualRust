@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.VisualStudioTools.Project;
 
@@ -18,7 +19,7 @@ namespace VisualRust.Project.Configuration
                 if(temp != null)
                     temp(this, new EventArgs());
             }
-        }
+        } 
         private System.String crateName;
         public System.String CrateName
         {
@@ -30,7 +31,7 @@ namespace VisualRust.Project.Configuration
                 if(temp != null)
                     temp(this, new EventArgs());
             }
-        }
+        } 
 
         public bool HasChangedFrom(Application obj)
         {
@@ -49,17 +50,18 @@ namespace VisualRust.Project.Configuration
             };
         }
 
+
         public static Application LoadFrom(CommonProjectNode proj)
         {
             var x = new Application();
-            x.OutputType = OutputTypeFromString(proj.GetUnevaluatedProperty("PlatformTarget"));
+            x.OutputType = OutputTypeFromString(proj.GetUnevaluatedProperty("OutputType"));
             Utils.FromString(proj.GetUnevaluatedProperty("CrateName"), out x.crateName);
             return x;
         }
 
         public void SaveTo(CommonProjectNode proj)
         {
-            proj.SetProjectProperty("PlatformTarget", OutputTypeToString(OutputType));
+            proj.SetProjectProperty("OutputType", OutputTypeToString(OutputType));
             proj.SetProjectProperty("CrateName", CrateName.ToString());
         }
     }
