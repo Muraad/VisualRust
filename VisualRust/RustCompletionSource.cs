@@ -8,6 +8,8 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Utilities;
 
+using VisualRust.Project;
+
 namespace VisualRust
 {
     [Export(typeof(ICompletionSourceProvider))]

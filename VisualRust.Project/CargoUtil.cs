@@ -33,8 +33,8 @@ namespace VisualRust
                 ProjectUtil.PrintToBuild(taskName.ToUpper(), String.Format("Starting {0} ...", taskName));
             }
 
-            // Get working dir from the selected rust project node
-            RustProjectNode rustProj = GetSelectedRustProjectNode();
+            // Get working dir via selected rust project node
+            RustProjectNode rustProj = ProjectUtil.GetSelectedRustProjectNode();
 
             // Call the cargo function with current working directory as argument
             Tuple<Process, Exception> process = CommonUtil.TryCatch(() => cargoFunc(rustProj.BaseURI.AbsoluteUrl));
@@ -72,7 +72,7 @@ namespace VisualRust
 
             // Start redirecting the set Outputs of the process to the build pane
             // Wait for all to complete, then print finish message and check for exceptions
-            WaitAllNotNull(RedirectOutputsIfNeeded(taskName, rustProj, process.Item1))
+            WaitAllNotNull(RedirectOutputsIfNeeded(taskName, rustProj, process.Item1, printBuildOutput))
             .ContinueWith(
                 task =>
                 {
@@ -101,11 +101,36 @@ namespace VisualRust
             TasksTask outputTask = null;
 
             if (process.StartInfo.RedirectStandardError)
-                errorTask = ProcessStandardError(process, rustProj, taskName, printBuildOutput);
+                errorTask = ProcessOutputStreamReader(process.StandardError, rustProj, taskName, printBuildOutput);
             if (process.StartInfo.RedirectStandardOutput)
-                outputTask = ProcessStandardOutput(process, rustProj, taskName, printBuildOutput);
+                outputTask = ProcessOutputStreamReader(process.StandardOutput, rustProj, taskName, printBuildOutput);
 
             return new TasksTask[] { errorTask, outputTask };
+        }
+
+        static System.Threading.Tasks.Task ProcessOutputStreamReader(
+            System.IO.StreamReader reader,
+            RustProjectNode rustProjectNode, 
+            string category = "BUILD", 
+            bool printBuildOutput = true, 
+            bool printRustcParsedMessages = false)
+        {
+            return System.Threading.Tasks.Task.Run(() =>
+            {
+                string errorOutput = reader.ReadToEnd();
+                var rustcErrors = RustcOutputProcessor.ParseOutput(errorOutput);
+
+                if (printBuildOutput)
+                    ProjectUtil.PrintToBuild(errorOutput);
+
+                foreach (var msg in rustcErrors)
+                {
+                    TaskMessages.QueueRustcMessage("Rust", msg, rustProjectNode, refresh: false);
+                    if (printRustcParsedMessages)
+                        ProjectUtil.PrintToBuild(msg.ToString());
+                }
+                TaskMessages.Refresh();
+            });
         }
 
         static TasksTask WaitAllNotNull(params TasksTask[] tasks)
@@ -113,66 +138,5 @@ namespace VisualRust
             return TasksTask.WhenAll(tasks.Where(t => t != null).ToArray());
         }
 
-        static RustProjectNode GetSelectedRustProjectNode()
-        {
-            var ivsSolution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
-            var dte = (EnvDTE80.DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
-
-
-            //Get first project details
-            EnvDTE.Project proj = dte.Solution.Projects.Item(1);
-            var containingProj = proj.ProjectItems.ContainingProject;
-            OAProject oaProj = containingProj as OAProject;
-            RustProjectNode rustProjNode = oaProj.ProjectNode as RustProjectNode;
-            return rustProjNode;
-        }
-
-        static System.Threading.Tasks.Task ProcessStandardOutput(
-            Process process, RustProjectNode rustProjectNode, string category = "BUILD", bool printBuildOutput = true)
-        {
-            return System.Threading.Tasks.Task.Run(() =>
-            {
-                string errorOutput = process.StandardOutput.ReadToEnd();
-                var rustcErrors = RustcOutputProcessor.ParseOutput(errorOutput);
-
-                if (printBuildOutput)
-                    ProjectUtil.PrintToBuild(errorOutput);
-
-                // Clear Task(Error)Message list from last run
-                //TaskMessages.Clear();
-                int msgCount = 0;
-                foreach (var msg in rustcErrors)
-                {
-                    TaskMessages.QueueRustcMessage("Rust", msg, rustProjectNode, refresh: false);
-                    //if(printBuildOutput)
-                    //    ProjectUtil.PrintToBuild(msg.ToString());
-                    msgCount++;
-                }
-
-                TaskMessages.Refresh();
-            });
-        }
-
-        static System.Threading.Tasks.Task ProcessStandardError(
-            Process process, RustProjectNode rustProjectNode, string category = "BUILD", bool printBuildOutput = true)
-        {
-            return System.Threading.Tasks.Task.Run(() =>
-            {
-                string errorOutput = process.StandardError.ReadToEnd();
-                var rustcErrors = RustcOutputProcessor.ParseOutput(errorOutput);
-
-                if (printBuildOutput)
-                    ProjectUtil.PrintToBuild(errorOutput);
-                // Clear Task(Error)Message list from last run
-                //TaskMessages.Clear();
-                foreach (var msg in rustcErrors)
-                {
-                    TaskMessages.QueueRustcMessage("Rust", msg, rustProjectNode, refresh:false);
-                    //if(printBuildOutput)
-                    //    ProjectUtil.PrintToBuild(msg.ToString());
-                }
-                TaskMessages.Refresh();
-            });
-        }
     }
 }

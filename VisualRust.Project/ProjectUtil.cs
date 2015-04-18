@@ -12,11 +12,25 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 //using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudioTools;
-
-namespace VisualRust
+using Microsoft.VisualStudioTools.Project.Automation;
+namespace VisualRust.Project
 {
     public static class ProjectUtil
     {
+        internal static RustProjectNode GetSelectedRustProjectNode()
+        {
+            var ivsSolution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
+            var dte = (EnvDTE80.DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+
+
+            //Get first project details
+            EnvDTE.Project proj = dte.Solution.Projects.Item(1);
+            var containingProj = proj.ProjectItems.ContainingProject;
+            OAProject oaProj = containingProj as OAProject;
+            RustProjectNode rustProjNode = oaProj.ProjectNode as RustProjectNode;
+            return rustProjNode;
+        }
+
         #region Show Dialogs functions
 
         internal static IServiceProvider PackageServiceProvider = null;

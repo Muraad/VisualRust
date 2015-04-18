@@ -36,14 +36,14 @@ namespace VisualRust.Project
 
         static int IsCargoBuildRunning = 0;
 
-        // If this build was successfull set timer work item multiplier to 20
+        // If this build was successfull set timer work item multiplier
         // else set it back to 1.0
         static Action<TimerWork, int> exitCallback = (tw, exitCode) =>
         {
-            if (exitCode == 0 && tw.Multiplier == 1.0)   // successfull, lets way 4 times as long for the next silent build
+            if (exitCode == 0 && tw.Multiplier == 1.0)   // successfull (first time), lets wait 4 times as long for the next silent build
             {
+                TaskMessages.RemoveAllFromTaskErrorCategory("Rust", Microsoft.VisualStudio.Shell.TaskErrorCategory.Error);
                 tw.Multiplier = 4.0;
-                TaskMessages.RemoveAllFromErrorCategory("Rust", Microsoft.VisualStudio.Shell.TaskErrorCategory.Error);
             }
             if (exitCode != 0 && tw.Multiplier != 1.0)   // error exit code
                 tw.Multiplier = 1.0;
@@ -53,6 +53,7 @@ namespace VisualRust.Project
         #endregion
 
         Microsoft.VisualStudioTools.Project.CommonProjectNode projNode = null;
+
         internal ProjectWorkPool(
             Microsoft.VisualStudioTools.Project.CommonProjectNode node = null, 
             int numberOfThreads = 2, bool autoStart = false, bool sendStatusMessages = true, int timerPeriod = 250) 
@@ -61,9 +62,6 @@ namespace VisualRust.Project
             this.projNode = node;
             foreach (var tuple in DefaultProjectTasks)
                 this.ScheduleWork(tuple.Item1, tuple.Item2);
-
-            if(projNode != null)
-                this.ScheduleWork(_ => this.projNode.GetDocumentManager().Save(true), 1000);
         }
 
     }

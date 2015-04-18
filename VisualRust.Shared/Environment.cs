@@ -18,12 +18,39 @@ namespace VisualRust.Shared
         // I'm really torn between "default", "local", "native", "unspecified" and "any"
         public const string DefaultTarget = "default";
 
+
+        public static string FindInstallPathOld(string target)
+        {
+            string result = null;
+            foreach(string path in System.Environment.GetEnvironmentVariable("PATH").Split(System.IO.Path.PathSeparator))
+            {
+                if(File.Exists(Path.Combine(path, "rustc.exe")) 
+                    && File.Exists(Path.Combine(path, "cargo.exe"))
+                    && CanActuallyBuildTarget(path, target))
+                result = path;
+            }
+            if (String.IsNullOrEmpty(result))
+            {
+                RegistryKey installpath = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(InnoPath);
+
+                if (installpath == null)
+                    result = null;
+                else
+                {
+                    object fullInstallKey = installpath.GetValue(InnoKey);
+                    result = fullInstallKey != null ? fullInstallKey.ToString() : null;
+                }
+            }
+            return result;
+        }
+
         /* 
          * If the target is "default" just return first location
          * Otherwise check for bin\rustlib\<target>
          */
         public static string FindInstallPath(string target)
         {
+            var installPaths = FindCurrentUserInstallPaths().ToList();
             return GetAllInstallPaths().Select(p => Path.Combine(p, "bin")).FirstOrDefault(p => CanActuallyBuildTarget(p, target));
         }
 

@@ -256,7 +256,7 @@ namespace VisualRust.Build
                     {
                         if(e.Data != null)
                         {
-                            foreach (RustcParsedMessage msg in ParseOutput(e.Data))
+                            foreach (RustcParsedMessage msg in RustcOutputProcessor.ParseOutput(e.Data))
                                 LogRustcMessage(msg);
                         }
                         //if (e.Data == null)
@@ -286,7 +286,7 @@ namespace VisualRust.Build
                 //string outputOutput = output.ToString();
 
                 // We found some warning or errors in the output, print them out
-                IEnumerable<RustcParsedMessage> messages = ParseOutput(errorOutput);
+                IEnumerable<RustcParsedMessage> messages = RustcOutputProcessor.ParseOutput(errorOutput);
 
                 // Other messages
                 //IEnumerable<RustcParsedMessage> outputMessages = ParseOutput(outputOutput);
@@ -294,7 +294,7 @@ namespace VisualRust.Build
                 // We found some warning or errors in the output, print them out
                 foreach (RustcParsedMessage msg in messages)
                 {
-                    LogRustcMessage(msg);
+                    RustcOutputProcessor.LogRustcMessage(msg, this.Log);
                 }
 
                 // Print other messages
@@ -315,76 +315,6 @@ namespace VisualRust.Build
             {
                 Log.LogErrorFromException(ex, true);
                 return false;
-            }
-        }
-        
-        private static IEnumerable<RustcParsedMessage> ParseOutput(string output)
-        {
-            MatchCollection errorMatches = defectRegex.Matches(output);
-
-            RustcParsedMessage previous = null;
-            foreach (Match match in errorMatches)
-            {
-                Match errorMatch = errorCodeRegex.Match(match.Groups[6].Value);
-                string errorCode = errorMatch.Success ? errorMatch.Groups[1].Value : null;
-                int line = Int32.Parse(match.Groups[2].Value, System.Globalization.NumberStyles.None);
-                int col = Int32.Parse(match.Groups[3].Value, System.Globalization.NumberStyles.None);
-                int endLine = Int32.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.None);
-                int endCol = Int32.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.None);
-
-                if (match.Groups[6].Value.StartsWith("warning: "))
-                {
-                    string msg = match.Groups[6].Value.Substring(9, match.Groups[6].Value.Length - 9 - (errorCode != null ? 8 : 0));
-                    if (previous != null) yield return previous;
-                    previous = new RustcParsedMessage(RustcParsedMessageType.Warning, msg, errorCode, match.Groups[1].Value,
-                        line, col, endLine, endCol);
-                }
-                else if (match.Groups[6].Value.StartsWith("note: "))
-                {
-                    string msg = match.Groups[6].Value.Substring(6, match.Groups[6].Value.Length - 6 - (errorCode != null ? 8 : 0));
-                    RustcParsedMessage note = new RustcParsedMessage(RustcParsedMessageType.Note, msg, errorCode, match.Groups[1].Value,
-                        line, col, endLine, endCol);
-
-                    if (previous != null)
-                    {
-                        // try to merge notes with a previous message (warning or error where it belongs to), if the span is the same
-                        if (previous.TryMergeWithFollowing(note))
-                        {
-                            continue; // skip setting new previous, because we successfully merged the new note into the previous message
-                        }
-                        else
-                        {
-                            yield return previous;
-                        }
-                    }
-                    previous = note;
-                }
-                else
-                {
-                    bool startsWithError = match.Groups[6].Value.StartsWith("error: ");
-                    string msg = match.Groups[6].Value.Substring((startsWithError ? 7 : 0), match.Groups[6].Value.Length - (startsWithError ? 7 : 0) - (errorCode != null ? 8 : 0));
-                    if (previous != null) yield return previous;
-                    previous = new RustcParsedMessage(RustcParsedMessageType.Error, msg, errorCode, match.Groups[1].Value,
-                        line, col, endLine, endCol);
-                }
-            }
-
-            if (previous != null) yield return previous;
-        }
-
-        private void LogRustcMessage(RustcParsedMessage msg)
-        {
-            if (msg.Type == RustcParsedMessageType.Warning)
-            {
-                this.Log.LogWarning(null, msg.ErrorCode, null, msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, msg.Message);
-            }
-            else if (msg.Type == RustcParsedMessageType.Note)
-            {
-                this.Log.LogWarning(null, msg.ErrorCode, null, msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, "note: " + msg.Message);
-            }
-            else
-            {
-                this.Log.LogError(null, msg.ErrorCode, null, msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, msg.Message);
             }
         }
     }

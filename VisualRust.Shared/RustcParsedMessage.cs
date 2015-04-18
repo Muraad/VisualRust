@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace VisualRust.Build
+namespace VisualRust.Shared
 {
-    enum RustcParsedMessageType
+
+    public enum RustcParsedMessageType
     {
         Error,
         Warning,
         Note
     }
 
-    class RustcParsedMessage
+    public class RustcParsedMessage
     {
         public RustcParsedMessageType Type;
         public string Message;
@@ -46,6 +50,20 @@ namespace VisualRust.Build
             {
                 return false;
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder strBuilder = new StringBuilder();
+
+            strBuilder.AppendLine("RustcParsedMessage");
+            strBuilder.AppendLine("  File: " + this.File);
+            strBuilder.AppendLine("  Type: " + this.Type + " ErrorCode: " + this.ErrorCode);
+            strBuilder.AppendLine("  LineNumber: " + this.LineNumber + "ColumnNumber: " + this.ColumnNumber);
+            strBuilder.AppendLine("  EndLineNumber: " + this.EndLineNumber + " EndColumnNumber: " + this.EndColumnNumber);
+            strBuilder.AppendLine("  Message: " + this.Message);
+            strBuilder.AppendLine();
+            return strBuilder.ToString();
         }
     }
 }

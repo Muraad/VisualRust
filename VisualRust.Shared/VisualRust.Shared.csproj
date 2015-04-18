@@ -50,6 +50,7 @@
     <Compile Include="Environment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RustcOutputProcessor.cs" />
+    <Compile Include="RustcParsedMessage.cs" />
     <Compile Include="RwLock.cs" />
     <Compile Include="WorkerPool.cs" />
   </ItemGroup>

@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Process = System.Diagnostics.Process;
 
+using VisualRust.Project;
+
 namespace VisualRust.Racer
 {
     /// <summary>

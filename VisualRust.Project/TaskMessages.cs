@@ -47,18 +47,6 @@ namespace VisualRust
             errorListProvider.WriteLocked(elp => elp.Tasks.Clear());
         }
 
-        public static void RemoveAllFromErrorCategory(string subCategory, TaskErrorCategory errorCategory)
-        {
-            List<DocumentTask> toBeRemoved = new List<DocumentTask>();
-
-            ForEachDocumentTask(docTask =>
-                {
-                    if (docTask.ErrorCategory == errorCategory)
-                        toBeRemoved.Add(docTask);
-                }, null);
-
-            toBeRemoved.ForEach(dt => errorListProvider.Value.Tasks.Remove(dt));
-        }
         public static void QueueRustcMessage(string subCategory, RustcParsedMessage rustcMsg, IVsHierarchy hierarchy, bool refresh = true)
         {
             if (rustcMsg.Type == RustcParsedMessageType.Error)
@@ -80,50 +68,6 @@ namespace VisualRust
                     rustcMsg.LineNumber, rustcMsg.ColumnNumber,
                     rustcMsg.EndLineNumber, rustcMsg.EndColumnNumber,
                     hierarchy, false, "", "", refresh);
-            }
-        }
-
-        public static bool Contains(
-            string subCategory,
-            string errorCode,
-            string file, string msg,
-            int line, int column,
-            IVsHierarchy hierarchy,
-            bool isError = true,
-            string helpKeyword = "",
-            string senderName = "")
-        {
-            bool result = false;
-
-            ForEachDocumentTask(null, breakAction: docTask =>
-                {
-                    if (docTask.Line == line - 1
-                        && docTask.Column == column - 1
-                        && docTask.Document.EndsWith(file)
-                        && isError ? docTask.ErrorCategory == TaskErrorCategory.Error : docTask.ErrorCategory == TaskErrorCategory.Warning
-                        && docTask.HelpKeyword == helpKeyword
-                        && docTask.HierarchyItem == hierarchy
-                        && docTask.Text == msg)
-                    {
-                        result = true;
-                    }
-                    return result;
-                });
-
-            return result;
-        }
-
-        private static void ForEachDocumentTask(Action<DocumentTask> action, Func<DocumentTask, bool> breakAction)
-        {
-            foreach (Microsoft.VisualStudio.Shell.Task t in errorListProvider.Value.Tasks)
-            {
-                DocumentTask docTask = t as DocumentTask;
-                if (docTask != null)
-                {
-                    action.Call(docTask);
-                    if (breakAction != null && breakAction.Call(docTask))
-                        break;
-                }
             }
         }
 
@@ -223,6 +167,66 @@ namespace VisualRust
 
             // NOTE: Unlike output we dont want to interactively report the tasks. So we never queue
             // call ReportQueuedTasks here. We do this when the build finishes.
+        }
+
+        public static void RemoveAllFromTaskErrorCategory(string subCategory, TaskErrorCategory errorCategory, bool refresh = true)
+        {
+            List<DocumentTask> toBeRemoved = new List<DocumentTask>();
+
+            ForEachDocumentTask(docTask =>
+            {
+                if (docTask.ErrorCategory == errorCategory)
+                    toBeRemoved.Add(docTask);
+            }, null);
+
+            toBeRemoved.ForEach(dt => errorListProvider.Value.Tasks.Remove(dt));
+
+            if (refresh)
+                Refresh();
+        }
+
+        public static bool Contains(
+                string subCategory,
+                string errorCode,
+                string file, string msg,
+                int line, int column,
+                IVsHierarchy hierarchy,
+                bool isError = true,
+                string helpKeyword = "",
+                string senderName = "")
+        {
+            bool result = false;
+
+            ForEachDocumentTask(null, breakAction: docTask =>
+            {
+                if (docTask.Line == line - 1
+                    && docTask.Column == column - 1
+                    && docTask.Document.EndsWith(file)
+                    && isError ? docTask.ErrorCategory == TaskErrorCategory.Error : docTask.ErrorCategory == TaskErrorCategory.Warning
+                    && docTask.HelpKeyword == helpKeyword
+                    && docTask.HierarchyItem == hierarchy
+                    && docTask.Text == msg)
+                {
+                    result = true;
+                }
+                return result;
+            });
+
+            return result;
+        }
+
+        private static void ForEachDocumentTask(Action<DocumentTask> action, Func<DocumentTask, bool> breakAction)
+        {
+            foreach (Microsoft.VisualStudio.Shell.Task t in errorListProvider.Value.Tasks)
+            {
+                DocumentTask docTask = t as DocumentTask;
+                if (docTask != null)
+                {
+                    action.Call(docTask);
+                    if (breakAction != null && breakAction.Call(docTask))
+                        break;
+                }
+            }
         }
 
         public static void Add(Microsoft.VisualStudio.Shell.Task task)
