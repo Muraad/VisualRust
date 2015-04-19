@@ -257,7 +257,7 @@ namespace VisualRust.Build
                         if(e.Data != null)
                         {
                             foreach (RustcParsedMessage msg in RustcOutputProcessor.ParseOutput(e.Data))
-                                LogRustcMessage(msg);
+                                RustcOutputProcessor.LogRustcMessage(msg, this.Log);
                         }
                         //if (e.Data == null)
                         //    outputWaitHandle.Set();

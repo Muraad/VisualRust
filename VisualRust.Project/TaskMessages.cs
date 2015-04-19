@@ -140,7 +140,6 @@ namespace VisualRust
 
                 // Get the text lines
                 buffer = docData as IVsTextLines;
-
                 if (buffer == null)
                 {
                     IVsTextBufferProvider bufferProvider = docData as IVsTextBufferProvider;
@@ -151,6 +150,15 @@ namespace VisualRust
                 }
             }
 
+            if(span.iEndLine > span.iStartLine)
+            {
+                span.iEndLine = span.iStartLine;
+                int lineLength = 0;
+                if (buffer.GetLengthOfLine(span.iStartLine, out lineLength) == Microsoft.VisualStudio.VSConstants.S_OK)
+                {
+                    span.iEndIndex = lineLength - 1;
+                }
+            }
             DocumentTask task = new DocumentTask(serviceProvider, buffer, marker, span, file);
             task.ErrorCategory = category;
             task.Document = file;
@@ -160,7 +168,6 @@ namespace VisualRust
             task.Text = msg;
             task.Category = TaskCategory.BuildCompile;
             task.HierarchyItem = hierarchy;
-
             Add(task);
             if(refresh)
                 Refresh();

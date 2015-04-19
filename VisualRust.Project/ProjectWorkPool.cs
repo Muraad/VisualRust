@@ -31,7 +31,7 @@ namespace VisualRust.Project
                             printBuildOutput: false,
                             exitCodeCallBack: ec => exitCallback(tw, ec));
                     }
-                }, 8000)
+                }, 60000)
         };
 
         static int IsCargoBuildRunning = 0;
@@ -40,10 +40,11 @@ namespace VisualRust.Project
         // else set it back to 1.0
         static Action<TimerWork, int> exitCallback = (tw, exitCode) =>
         {
-            if (exitCode == 0 && tw.Multiplier == 1.0)   // successfull (first time), lets wait 4 times as long for the next silent build
+            if (exitCode == 0)   // successfull (first time), lets wait 4 times as long for the next silent build
             {
                 TaskMessages.RemoveAllFromTaskErrorCategory("Rust", Microsoft.VisualStudio.Shell.TaskErrorCategory.Error);
-                tw.Multiplier = 4.0;
+                if(tw.Multiplier == 1.0)
+                    tw.Multiplier = 1.5;
             }
             if (exitCode != 0 && tw.Multiplier != 1.0)   // error exit code
                 tw.Multiplier = 1.0;

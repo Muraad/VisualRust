@@ -17,12 +17,61 @@ namespace VisualRust.Project
 {
     public static class ProjectUtil
     {
+        internal static IVsSolution GetIVsSolution()
+        {
+            return (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
+        }
+
+        internal static EnvDTE80.DTE2 GetDTE2()
+        {
+            return (EnvDTE80.DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+        }
+
+        internal static void SaveSolution(IVsHierarchy hierarchyDoc)
+        {
+            var ivsSolution = GetIVsSolution();
+            ivsSolution.SaveSolutionElement(0, hierarchyDoc, 0);
+        }
+
+        internal static OAProject GetActiveSolutionsProject()
+        {
+            IVsSolution ivsSolution = GetIVsSolution();
+            EnvDTE80.DTE2 dte = GetDTE2();
+            var activeSolutions = dte.Solution.DTE.ActiveSolutionProjects as object[];
+            OAProject oaProject = null;
+            if(activeSolutions != null && activeSolutions.Length > 0)
+            {
+                oaProject = activeSolutions[0] as OAProject;
+                if(oaProject != null)
+                {
+                    Debug.WriteLine(oaProject.FullName);
+                }
+            }
+            return oaProject;
+        }
+
+        internal static RustProjectNode GetActiveRustProject()
+        {
+            IVsSolution ivsSolution = GetIVsSolution();
+            EnvDTE80.DTE2 dte = GetDTE2();
+            var activeSolutions = dte.Solution.DTE.ActiveSolutionProjects as object[];
+            RustProjectNode rustProject = null;
+            if (activeSolutions != null && activeSolutions.Length > 0)
+            {
+                OAProject oaProject = activeSolutions[0] as OAProject;
+                if (oaProject != null && oaProject.FileName.EndsWith(".rsproj"))
+                {
+                    rustProject = oaProject.Project as RustProjectNode;
+                }
+            }
+            return rustProject;
+
+        }
         internal static RustProjectNode GetSelectedRustProjectNode()
         {
-            var ivsSolution = (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
-            var dte = (EnvDTE80.DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
-
-
+            IVsSolution ivsSolution = GetIVsSolution();
+            EnvDTE80.DTE2 dte = GetDTE2();
+            GetActiveSolutionsProject();
             //Get first project details
             EnvDTE.Project proj = dte.Solution.Projects.Item(1);
             var containingProj = proj.ProjectItems.ContainingProject;
@@ -163,7 +212,6 @@ namespace VisualRust.Project
 
             // Get the output window
             outputWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-
             // The General pane is not created by default. We must force its creation
             if (guidPane == Microsoft.VisualStudio.VSConstants.OutputWindowPaneGuid.GeneralPane_guid)
             {

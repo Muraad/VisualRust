@@ -29,12 +29,13 @@ namespace VisualRust
         {
             if (printBuildOutput)
             {
+                ProjectUtil.GetBuildWindowPane().Clear();
                 ProjectUtil.PrintToBuild(String.Format("------------------------- Cargo {0} -------------------------\n", taskName));
                 ProjectUtil.PrintToBuild(taskName.ToUpper(), String.Format("Starting {0} ...", taskName));
             }
 
             // Get working dir via selected rust project node
-            RustProjectNode rustProj = ProjectUtil.GetSelectedRustProjectNode();
+            RustProjectNode rustProj = ProjectUtil.GetActiveRustProject();
 
             // Call the cargo function with current working directory as argument
             Tuple<Process, Exception> process = CommonUtil.TryCatch(() => cargoFunc(rustProj.BaseURI.AbsoluteUrl));
