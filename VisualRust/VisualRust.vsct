@@ -10,17 +10,25 @@
       This section uses a Guid to identify the package that provides the command defined inside it. -->
   <Commands package="guidVisualRustPkg">
 
+    <Menus>
+      <Menu guid="guidVSPackage1CmdSet" id="CargoToolbar" type="Toolbar" >
+        <CommandFlag>DefaultDocked</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo toolbar</ButtonText>
+          <CommandName>Cargo toolbar</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+    
     <Groups>
-
-      <Group guid="guidVSPackage1CmdSet" id="MyMenuGroup" priority="0x0600">
-        <!--Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/-->
+      <Group guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+      </Group>
+      <Group guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" priority="0x0000">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbar"/>
       </Group>
     </Groups>
 
-    <!--Buttons section. -->
-    <!--This section defines the elements the user can interact with, like a menu command or a button 
-        or combo box in a toolbar. -->
     <Buttons>
       <!--To define a menu group you have to specify its ID, the parent menu and its display priority. 
           The command is visible and enabled by default. If you need to change the visibility, status, etc, you can use
@@ -29,9 +37,11 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-
+      
+      <!--Cargo/Rust project right click buttons--> 
+        
       <Button guid="guidVSPackage1CmdSet" id="cmdidCargoRun" priority="0x0100" type="Button">
-        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Parent guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
           <ButtonText>Cargo run</ButtonText>
@@ -39,7 +49,7 @@
       </Button>
       
       <Button guid="guidVSPackage1CmdSet" id="cmdidCargoBuild" priority="0x0120" type="Button">
-        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+        <Parent guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" />
         <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
           <ButtonText>Cargo build</ButtonText>
@@ -53,30 +63,100 @@
         </Strings>
       </Button-->
 
-      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoUpdate" priority="0x0140" type="Button">
-        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoClean" priority="0x0140" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" />
+        <Strings>
+          <ButtonText>Cargo clean</ButtonText>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoUpdate" priority="0x0150" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" />
         <Strings>
           <ButtonText>Cargo update</ButtonText>
         </Strings>
       </Button>
 
-      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoTest" priority="0x0150" type="Button">
-        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoTest" priority="0x0160" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" />
         <Strings>
           <ButtonText>Cargo test</ButtonText>
         </Strings>
       </Button>
 
-      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoBench" priority="0x0160" type="Button">
-        <Parent guid="guidVSPackage1CmdSet" id="MyMenuGroup" />
+      <Button guid="guidVSPackage1CmdSet" id="cmdidCargoBench" priority="0x0170" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="RustProjectMenuGroup" />
         <Strings>
           <ButtonText>Cargo bench</ButtonText>
         </Strings>
       </Button>
       
+      <!--Cargo toolbar buttons--> 
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCargoRun" priority="0x0000" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo run</ButtonText>
+          <CommandName>Cargo run</CommandName>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCargoBuild" priority="0x0000" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo build</ButtonText>
+          <CommandName>Cargo build</CommandName>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCargoClean" priority="0x0100" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo clean</ButtonText>
+          <CommandName>Cargo clean</CommandName>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCargoUpdate" priority="0x0200" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo update</ButtonText>
+          <CommandName>Cargo update</CommandName>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCargoTest" priority="0x0300" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo test</ButtonText>
+          <CommandName>Cargo test</CommandName>
+        </Strings>
+      </Button>
+    
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCargoBench" priority="0x0400" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Cargo bench</ButtonText>
+          <CommandName>Cargo bench</CommandName>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidVSPackage1CmdSet" id="cmdidToolbarCustomCommand" priority="0x0500" type="Button">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup" />
+        <CommandFlag>IconAndText</CommandFlag>
+        <Strings>
+          <ButtonText>Run cmd</ButtonText>
+          <CommandName>Cargo</CommandName>
+        </Strings>
+      </Button>
     </Buttons>
 
-    <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
     <Bitmaps>
       <!--  The bitmap id is defined in a way that is a little bit different from the others: 
             the declaration starts with a guid for the bitmap strip, then there is the resource id of the 
@@ -87,11 +167,35 @@
 
     </Bitmaps>
 
+    <Combos>
+      <Combo guid="guidVSPackage1CmdSet" id="cmdidToolbarCmdCombo" priority="0x0600" type="DropDownCombo"
+        defaultWidth="90" idCommandList="cmdidToolbarCargoCustomComboGetList">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup"/>
+        <CommandFlag>IconAndText</CommandFlag>
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <MenuText>Cargo cmd</MenuText>
+          <ButtonText></ButtonText>
+          <ToolTipText>Enter cargo arguments</ToolTipText>
+          <CanonicalName>DropDown Combo</CanonicalName>
+          <CommandName>DropDown Combo</CommandName>
+        </Strings>
+      </Combo>
+      <Combo guid="guidVSPackage1CmdSet" id="cmdidToolbarCmdArgsCombo" priority="0x0700" type="MRUCombo"
+        defaultWidth="300" idCommandList="0">
+        <Parent guid="guidVSPackage1CmdSet" id="CargoToolbarGroup"/>
+        <CommandFlag>IconAndText</CommandFlag>
+        <CommandFlag>CommandWellOnly</CommandFlag>
+        <Strings>
+          <MenuText>Cargo cmd</MenuText>
+          <ButtonText></ButtonText>
+          <ToolTipText>Enter cargo arguments</ToolTipText>
+          <CanonicalName>DropDown Combo</CanonicalName>
+          <CommandName>DropDown Combo</CommandName>
+        </Strings>
+      </Combo>
+    </Combos>
   </Commands>
-
-
-
-
 
   <Symbols>
     <!-- This is the package guid. -->
@@ -99,17 +203,36 @@
 
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidVSPackage1CmdSet" value="{f26706f3-1d40-41c0-bda3-e78f8be21fe0}">
-
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      
+      <IDSymbol name="CargoToolbar" value="0x1000"/>
+      <IDSymbol name="CargoToolbarGroup" value="0x1050" />
+  
+        
+      <IDSymbol name="CargoToolbarMenuController" value="0x1300" />
+      <IDSymbol name="CargoToolbarMenuControllerGroup" value="0x1060" />
+      <IDSymbol name="cmdidToolbarCargoRun" value="0x0130" />
+      <IDSymbol name="cmdidToolbarCargoBuild" value="0x0131" />
+      <!--IDSymbol name="cmdidToolbarCargoNew" value="0x0132" /-->
+      <IDSymbol name="cmdidToolbarCargoClean" value="0x0133" />
+      <IDSymbol name="cmdidToolbarCargoUpdate" value="0x0134" />
+      <IDSymbol name="cmdidToolbarCargoTest" value="0x0135" />
+      <IDSymbol name="cmdidToolbarCargoBench" value="0x0136" />
+      <IDSymbol name="cmdidToolbarCustomCommand" value="0x0137" />
+      <IDSymbol name="cmdidToolbarCmdCombo" value="0x0138" />
+      <IDSymbol name="cmdidToolbarCmdArgsCombo" value="0x0139" />
+      
+      <IDSymbol name="cmdidToolbarCargoCustomComboGetList" value="0x108"/>
+      
+      <IDSymbol name="RustProjectMenuGroup" value="0x1020" />
       <IDSymbol name="cmdidCargoRun" value="0x0100" />
       <IDSymbol name="cmdidCargoBuild" value="0x0120" />
-      <IDSymbol name="cmdidCargoUpdate" value="0x0140" />
-      <IDSymbol name="cmdidCargoTest" value="0x0150" />
-      <IDSymbol name="cmdidCargoBench" value="0x0160" />
+      <!--IDSymbol name="cmdidCargoNew" value="0x0130" /-->
+      <IDSymbol name="cmdidCargoClean" value="0x0140" />
+      <IDSymbol name="cmdidCargoUpdate" value="0x0150" />
+      <IDSymbol name="cmdidCargoTest" value="0x0160" />
+      <IDSymbol name="cmdidCargoBench" value="0x0170" />
     </GuidSymbol>
-
-
-
+        
     <GuidSymbol name="guidImages" value="{6c6f9a06-df6a-4c64-9a66-782478cd2477}" >
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />

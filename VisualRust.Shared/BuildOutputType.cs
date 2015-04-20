@@ -9,7 +9,9 @@ namespace VisualRust.Shared
     public enum BuildOutputType
     {
         Application,
-        Library
+        Library,
+        CargoApplication,
+        CargoLibrary
     }
 
     public static class BuildOutputTypeExtension
@@ -22,6 +24,10 @@ namespace VisualRust.Shared
                 return BuildOutputType.Application;
             if(val.Equals("library", StringComparison.OrdinalIgnoreCase))
                 return BuildOutputType.Library;
+            if (val.Equals("cargo_exe", StringComparison.OrdinalIgnoreCase))
+                return BuildOutputType.CargoApplication;
+            if (val.Equals("cargo_library", StringComparison.OrdinalIgnoreCase))
+                return BuildOutputType.CargoLibrary;
             return BuildOutputType.Application;
         }
 
@@ -33,6 +39,10 @@ namespace VisualRust.Shared
                     return "exe";
                 case BuildOutputType.Library:
                     return "library";
+                case BuildOutputType.CargoApplication:
+                    return "cargo_exe";
+                case BuildOutputType.CargoLibrary:
+                    return "cargo_library";
                 default:
                     throw new ArgumentException("val");
             }
@@ -46,6 +56,10 @@ namespace VisualRust.Shared
                     return "Application";
                 case BuildOutputType.Library:
                     return "Library";
+                case BuildOutputType.CargoApplication:
+                    return "Cargo application";
+                case BuildOutputType.CargoLibrary:
+                    return "Cargo library";
                 default:
                     throw new ArgumentException("val");
             }
@@ -56,8 +70,10 @@ namespace VisualRust.Shared
             switch(val)
             {
                 case BuildOutputType.Application:
+                case BuildOutputType.CargoApplication:
                     return "bin";
                 case BuildOutputType.Library:
+                case BuildOutputType.CargoLibrary:
                     return "lib";
                 default:
                     throw new ArgumentException("val");

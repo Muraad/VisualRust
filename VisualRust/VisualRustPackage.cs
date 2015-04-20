@@ -118,8 +118,8 @@ namespace VisualRust
             docEventsListener = new RunningDocTableEventsListener((IVsRunningDocumentTable)GetService(typeof(SVsRunningDocumentTable)));
             Racer.AutoCompleter.Init();
             
-            cargoMenuHandler.Init(GetService(typeof(IMenuCommandService)) as OleMenuCommandService);
-
+            cargoMenuHandler.Init(GetService(typeof(IMenuCommandService)) as OleMenuCommandService, this);
+            
             // These two need an instance of an IServiceProvider
             TaskMessages.Init(this);
             ProjectUtil.PackageServiceProvider = this;
@@ -128,6 +128,7 @@ namespace VisualRust
         protected override void Dispose(bool disposing)
         {
             docEventsListener.Dispose();
+            cargoMenuHandler.Dispose();
             base.Dispose(disposing);
         }
 
