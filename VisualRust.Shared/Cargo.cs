@@ -68,7 +68,6 @@ namespace VisualRust.Shared
         {
             Debug.WriteLine("Cargo.Clean(" + workingDir + ")");
             return Start(workingDir, "clean");
-
         }
 
         public static Process Start(
@@ -100,7 +99,7 @@ namespace VisualRust.Shared
             bool redirectStandardOutput = false)
         {
             Debug.WriteLine("Cargo.CreateStartInfo(" + workingDir + ", " + arguments + ")");
-          return new ProcessStartInfo()
+            return new ProcessStartInfo()
             {
                 CreateNoWindow = !createWindow,
                 FileName = Path.Combine(RUST_PATH, "cargo.exe"),

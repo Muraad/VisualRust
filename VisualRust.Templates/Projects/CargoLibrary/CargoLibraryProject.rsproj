@@ -1,17 +1,17 @@
 ﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
- 
-  <PropertyGroup>
-    <Configuration Condition="'$(Configuration)' == ''">CargoBuild</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>$guid1$</ProjectGuid>
-    <OutputType>library</OutputType>
-  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Bench|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Update|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Clean|default'" />
   
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>target\debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>target\release\</OutputPath>
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Build</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">default</Platform>
+    <ProjectGuid>$guid1$</ProjectGuid>
+    <OutputType>cargo_library</OutputType>
   </PropertyGroup>
   
   <ItemGroup>
@@ -23,19 +23,5 @@
     <None Include="Cargo.toml" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Run|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Bench|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Update|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Clean|AnyCPU'" />
-
-  <Import Project="$(MSBuildExtensionsPath)\VisualRust\VisualRust.Cargo.targets"></Import>
-  
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  
+  <Import Project="$(MSBuildExtensionsPath)\VisualRust\VisualRust.Cargo.targets"></Import>  
 </Project>

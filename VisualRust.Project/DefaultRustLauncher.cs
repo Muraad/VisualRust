@@ -19,9 +19,15 @@ namespace VisualRust.Project
 
         public int LaunchProject(bool debug)
         {
-            if(_project.GetProjectProperty("OutputType") != "exe")
+            string outputType = _project.GetProjectProperty("OutputType");
+
+            if(outputType != "exe" && outputType != "cargo_exe")
                 throw new InvalidOperationException("A project with an Output Type of Library cannot be started directly.");
             var startupFilePath = GetProjectStartupFile();
+
+            if (outputType == "cargo_exe")  // The cargo task is starting the exe
+                return VSConstants.S_OK;
+
             if (String.IsNullOrEmpty(startupFilePath))
                 return VSConstants.S_OK;
             return LaunchFile(startupFilePath, debug);
@@ -29,6 +35,8 @@ namespace VisualRust.Project
 
         private string GetProjectStartupFile()
         {
+            string targetDir = _project.GetProjectProperty("TargetDir");
+            string targetFileName = _project.GetProjectProperty("TargetFileName");
             var startupFilePath = Path.Combine(_project.GetProjectProperty("TargetDir"), _project.GetProjectProperty("TargetFileName"));
             
             if (string.IsNullOrEmpty(startupFilePath))

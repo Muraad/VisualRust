@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets"/>
-  <PropertyGroup>
-    <VisualRustTasksPath>$(MSBuildExtensionsPath)\VisualRust</VisualRustTasksPath>
-  </PropertyGroup>
-
   <UsingTask AssemblyFile="$(VisualRustTasksPath)\VisualRust.CargoBuild.dll"
              TaskFactory="CargoTaskFactory"
              TaskName="CargoTask"/>
 
+  <PropertyGroup>
+    <VisualRustTasksPath>$(MSBuildExtensionsPath)\VisualRust</VisualRustTasksPath>
+    <OutputPath>target\debug\</OutputPath>
+  </PropertyGroup>
+
   <Target Name="CoreCompile">
-    <CargoTask WorkingDirectory="$(ProjectDir)" Configuration="$(Configuration)"/>
+    <CargoTask WorkingDirectory="$(ProjectDir)" Configuration="$(Configuration)" OutputType="$(OutputType)"/>
   </Target>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets"/>
   <Target Name="CreateManifestResourceNames"/>
 </Project>

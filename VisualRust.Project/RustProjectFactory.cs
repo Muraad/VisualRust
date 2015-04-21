@@ -25,7 +25,6 @@ namespace VisualRust.Project
         {
             RustProjectNode project = new RustProjectNode(this.pkg);
             project.SetSite((IOleServiceProvider)((IServiceProvider)this.Package).GetService(typeof(IOleServiceProvider)));
-            //project.InitOutputLogger();
             return project;
         }
     }

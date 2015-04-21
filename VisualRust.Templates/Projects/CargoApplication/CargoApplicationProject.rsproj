@@ -1,24 +1,19 @@
 ﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">  
-  
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Run|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Bench|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Update|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Clean|default'" />
+
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Run</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">default</Platform>
     <ProjectGuid>$guid1$</ProjectGuid>
-    <OutputType>exe</OutputType>
-    <OutputPath>target\debug\</OutputPath>
+    <OutputType>cargo_exe</OutputType>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Build'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Run'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Test'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Bench'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Update'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Clean'" />
-  
-  <!--PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Build|AnyCPU' ">
-    <OutputPath>target\release\</OutputPath>
-  </PropertyGroup-->
   
   <ItemGroup>
     <Folder Include="src\" />
@@ -39,8 +34,4 @@
     <Message Text="@(Test2)" />
     <Message Text="Cargo build finished..."/>
   </Target-->
-  <Target Name="BeforeBuild"/>
-  <Target Name="AfterBuild">
-  </Target>
-
 </Project>

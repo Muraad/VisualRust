@@ -123,6 +123,13 @@ namespace VisualRust
                 new EventHandler(BenchItemCallback),
                 new EventHandler(OnToolbarItemQueryStatus));
             commands.Add(mc);
+
+            // Run command
+            mc = AddOleMenuCommand(
+                mcs, PkgCmdIDList.cmdidToolbarCustomCommand,
+                new EventHandler(CustomCmdItemCallback),
+                new EventHandler(OnToolbarItemQueryStatus));
+            commands.Add(mc);
         }
 
         private void InitCmdComboBox(OleMenuCommandService mcs)
@@ -286,6 +293,14 @@ namespace VisualRust
             CargoUtil.CallCargoProcess(workingDir => Cargo.Release(workingDir), "release");
         }
 
+        private void CustomCmdItemCallback(object sender, EventArgs e)
+        {
+            if (!String.IsNullOrEmpty(currentCmd) && !String.IsNullOrEmpty(currentCmdArgs))
+            {
+                CargoUtil.CallCargoProcess(workingDir => Cargo.Start(workingDir, currentCmdArgs), currentCmd + " " + currentCmdArgs);
+            }
+
+        }
         #endregion
 
         private OleMenuCommand AddOleMenuCommand(OleMenuCommandService mcs, int commandId, EventHandler cmdHandler, EventHandler itemQueryHandler)

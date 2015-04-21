@@ -37,7 +37,9 @@ namespace VisualRust.Project.Forms
                 new[]
                 {
                     BuildOutputType.Application.ToDisplayString(),
-                    BuildOutputType.Library.ToDisplayString()
+                    BuildOutputType.Library.ToDisplayString(),
+                    BuildOutputType.CargoApplication.ToDisplayString(),
+                    BuildOutputType.CargoLibrary.ToDisplayString()
                 },
                 Utils.Paddding());
             typeComboBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;

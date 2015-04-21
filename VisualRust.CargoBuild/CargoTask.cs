@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 
 using Microsoft.Build.Framework;
-using Microsoft.Build.Framework;
 using VisualRust.Shared;
 
 namespace VisualRust.CargoBuild
@@ -18,6 +17,8 @@ namespace VisualRust.CargoBuild
 
         [Required]
         public string Configuration { get; set; }
+
+        public string OutputType { get; set; }
 
         public override bool Execute()
         {
@@ -38,35 +39,37 @@ namespace VisualRust.CargoBuild
             string errorOutput = String.Empty;
             Log.LogMessage("Confing            = " + Configuration);
             Log.LogMessage("WorkingDirectory   = " + WorkingDirectory);
+            Log.LogMessage("OutputType         = " + OutputType);
+            Process process = null;
             switch(Configuration)
             {
                 case "Build":
                     this.Log.LogCommandLine("Starting Cargo build at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Build(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Build(workingDir), "Build");
                     break;
                 case "Run":
                     Log.LogCommandLine("Starting Cargo run at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Run(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Run(workingDir), "Run");
                     break;
                 case "Update":
                     Log.LogCommandLine("Starting Cargo update at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Update(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Update(workingDir), "Update");
                     break;
                 case "Test":
                     this.Log.LogCommandLine("Starting Cargo test at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Test(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Test(workingDir), "Test");
                     break;
                 case "Bench":
                     this.Log.LogCommandLine("Starting Cargo bench at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Bench(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Bench(workingDir), "Bench");
                     break;
                 case "Release":
                     this.Log.LogCommandLine("Starting Cargo build --release at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Release(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Release(workingDir), "Release");
                     break;
                 case "Clean":
                     this.Log.LogCommandLine("Starting Cargo clean at " + DateTime.Now.ToLongTimeString());
-                    EchoStandardError(Shared.Cargo.Clean(WorkingDirectory));
+                    process = CallCargoProcess(workingDir => Cargo.Clean(workingDir), "Clean");
                     break;
                 default: 
                     Log.LogCommandLine("Unknown configuration " + DateTime.Now.ToLongTimeString());
@@ -76,26 +79,123 @@ namespace VisualRust.CargoBuild
                 //    HandleProcess(Shared.Cargo.(WorkingDirectory));
                 //    break;
             }
+            if (process != null)
+            {
+                finishedEvent.WaitOne();
+            }
             return result;
         }
 
+        System.Threading.AutoResetEvent finishedEvent = new System.Threading.AutoResetEvent(false);
 
-        private System.Threading.Tasks.Task EchoStandardError(Process process)
+        public Process CallCargoProcess(Func<string, Process> cargoFunc, string taskName, bool printBuildOutput = true, Action<int> exitCodeCallBack = null)
+        {
+            exitCodeCallBack = exitCode =>
+            {
+                finishedEvent.Set();
+            };
+
+            if (printBuildOutput)
+            {
+                Log.LogCommandLine(String.Format("------------------------- Cargo {0} -------------------------\n", taskName));
+                Log.LogCommandLine(String.Format("Starting {0} ...", taskName));
+            }
+
+            // Call the cargo function with current working directory as argument
+            Tuple<Process, Exception> process = CommonUtil.TryCatch(() => cargoFunc(WorkingDirectory));
+
+            if (process.Item2 != null)   // Exception
+            {
+                HandleProcessStartException(process, printBuildOutput);
+            }
+            else if (process.Item1 != null) // No exception, process is there
+            {
+                HandleProcess(taskName, process, printBuildOutput, exitCodeCallBack);
+            }
+
+            if (printBuildOutput)
+                Log.LogCommandLine("-------------------------------------------------------------\n\n");
+            return process.Item1;
+        }
+
+        void HandleProcessStartException(Tuple<Process, Exception> process, bool printBuildOutput = true)
+        {
+            // Something went wrong, print status
+            if (printBuildOutput)
+            {
+                Exception exception = process.Item2;
+                Log.LogErrorFromException(exception, true);
+            }
+        }
+
+        void HandleProcess(
+            string taskName, Tuple<Process, Exception> process, bool printBuildOutput = true, Action<int> exitCodeCallBack = null)
+        {
+            if (printBuildOutput)
+                Log.LogCommandLine("Started at " + process.Item1.StartTime.ToLongTimeString());
+
+            // Start redirecting the set Outputs of the process to the build pane
+            // Wait for all to complete, then print finish message and check for exceptions
+            WaitAllNotNull(RedirectOutputsIfNeeded(taskName, process.Item1, printBuildOutput))
+            .ContinueWith(
+                task =>
+                {
+                    if (task.Exception != null && printBuildOutput)
+                        Log.LogErrorFromException(task.Exception, true);
+
+                    // Be sure process is finshed, is needed!
+                    // Outputs can be closed but process is still running,
+                    // then ExitTime throws an exception
+                    process.Item1.WaitForExit();
+
+                    exitCodeCallBack.Call(process.Item1.ExitCode);
+
+                    if (printBuildOutput)
+                    {
+                        Log.LogCommandLine("Finished at " + DateTime.Now.ToLongTimeString());
+                    }
+                });
+        }
+
+        Task[] RedirectOutputsIfNeeded(string taskName, Process process, bool printBuildOutput = true)
+        {
+            Task errorTask = null;
+            Task outputTask = null;
+
+            if (process.StartInfo.RedirectStandardError)
+                errorTask = ProcessOutputStreamReader(process.StandardError, taskName, printBuildOutput);
+            if (process.StartInfo.RedirectStandardOutput)
+                outputTask = ProcessOutputStreamReader(process.StandardOutput, taskName, printBuildOutput);
+
+            return new Task[] { errorTask, outputTask };
+        }
+
+        System.Threading.Tasks.Task ProcessOutputStreamReader(
+            System.IO.StreamReader reader,
+            string category = "BUILD",
+            bool printBuildOutput = true,
+            bool printRustcParsedMessages = false)
         {
             return System.Threading.Tasks.Task.Run(() =>
             {
-                string errorOutput = process.StandardError.ReadToEnd();
-                this.Log.LogCommandLine(errorOutput);
+                string output = reader.ReadToEnd();
+                var rustMessages = RustcOutputProcessor.ParseOutput(output);
 
-                var rustcErrors = RustcOutputProcessor.ParseOutput(errorOutput);
-                foreach (var msg in rustcErrors)
+                if (printBuildOutput)
+                    Log.LogCommandLine(output);
+
+                foreach (var msg in rustMessages)
                 {
-                    RustcOutputProcessor.LogRustcMessage(msg, this.Log);
+                    Log.LogError("Rust", msg.ErrorCode, "", msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, msg.Message);
+                    //if (printRustcParsedMessages)
+                    //    Log.LogCommandLine(msg.ToString());
                 }
-
-                process.WaitForExit();
-                
             });
+        }
+
+        Task WaitAllNotNull(params Task[] tasks)
+        {
+            return Task.WhenAll(tasks.Where(t => t != null).ToArray());
         }
     }
 }
