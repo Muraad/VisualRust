@@ -15,7 +15,6 @@ namespace VisualRust.Build
     {
         private static readonly Regex defectRegex = new Regex(@"^([^\n:]+):(\d+):(\d+):\s+(\d+):(\d+)\s+(.*)$", RegexOptions.Multiline | RegexOptions.CultureInvariant);
 
-        // FIXME: This currently does not handle errors with descriptions, e.g. "unreachable pattern [E0001] (pass `--explain E0001` to see a detailed explanation)"
         private static readonly Regex errorCodeRegex = new Regex(@"\[([A-Z]\d\d\d\d)\]$", RegexOptions.CultureInvariant);
 
         private string[] configFlags = new string[0];
@@ -38,10 +37,15 @@ namespace VisualRust.Build
             set { libPaths = value; }
         }
 
+        private string[] crateType = new string[0];
         /// <summary>
         /// Sets --crate-type option.
         /// </summary>
-        public string CrateType { get; set; }
+        public string[] CrateType 
+        { 
+            get { return crateType; }
+            set { crateType = value; }
+        }
 
         private string[] emit = new string[0];
         /// <summary>
@@ -192,7 +196,7 @@ namespace VisualRust.Build
             if (AdditionalLibPaths.Length > 0)
                 sb.AppendFormat(" -L {0}", String.Join(",", AdditionalLibPaths));
             if(CrateType.Length > 0)
-                sb.AppendFormat(" --crate-type {0}", BuildOutputTypeExtension.Parse(CrateType).ToRustcString());
+                sb.AppendFormat(" --crate-type {0}", String.Join(",",CrateType));
             if(Emit.Length > 0)
                 sb.AppendFormat(" --emit {0}", String.Join(",", Emit));
             if(!String.IsNullOrWhiteSpace(CrateName))
@@ -229,7 +233,7 @@ namespace VisualRust.Build
                 if(String.Equals(target, Shared.Environment.DefaultTarget, StringComparison.OrdinalIgnoreCase))
                     Log.LogError("Could not find a Rust installation.");
                 else
-                    Log.LogError("Could not find a Rust instalation that can compile target {0}.", target);
+                    Log.LogError("Could not find a Rust installation that can compile target {0}.", target);
                 return false;
             }
             var psi = new ProcessStartInfo()
@@ -315,6 +319,84 @@ namespace VisualRust.Build
             {
                 Log.LogErrorFromException(ex, true);
                 return false;
+            }
+        }
+        private IEnumerable<RustcParsedMessage> ParseOutput(string output)
+        {
+            MatchCollection errorMatches = defectRegex.Matches(output);
+
+            RustcParsedMessage previous = null;
+            foreach (Match match in errorMatches)
+            {
+                string remainingMsg = match.Groups[6].Value.Trim();
+                Match errorMatch = errorCodeRegex.Match(remainingMsg);
+                string errorCode = errorMatch.Success ? errorMatch.Groups[1].Value : null;
+                int line = Int32.Parse(match.Groups[2].Value, System.Globalization.NumberStyles.None);
+                int col = Int32.Parse(match.Groups[3].Value, System.Globalization.NumberStyles.None);
+                int endLine = Int32.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.None);
+                int endCol = Int32.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.None);
+
+                if (remainingMsg.StartsWith("warning: "))
+                {
+                    string msg = match.Groups[6].Value.Substring(9, match.Groups[6].Value.Length - 9 - (errorCode != null ? 8 : 0));
+                    if (previous != null) yield return previous;
+                    previous = new RustcParsedMessage(RustcParsedMessageType.Warning, msg, errorCode, match.Groups[1].Value,
+                        line, col, endLine, endCol);
+                }
+                else if (remainingMsg.StartsWith("note: ") || remainingMsg.StartsWith("help: "))
+                {
+                    if (remainingMsg.StartsWith("help: pass `--explain ") && previous != null)
+                    {
+                        previous.CanExplain = true;
+                        continue;
+                    }
+
+                    // NOTE: "note: " and "help: " are both 6 characters long (though hardcoding this is probably still not a very good idea)
+                    string msg = remainingMsg.Substring(6, remainingMsg.Length - 6 - (errorCode != null ? 8 : 0));
+                    var type = remainingMsg.StartsWith("note: ") ? RustcParsedMessageType.Note : RustcParsedMessageType.Help;
+                    RustcParsedMessage note = new RustcParsedMessage(type, msg, errorCode, match.Groups[1].Value,
+                        line, col, endLine, endCol);
+
+                    if (previous != null)
+                    {
+                        // try to merge notes and help messages with a previous message (warning or error where it belongs to), if the span is the same
+                        if (previous.TryMergeWithFollowing(note))
+                        {
+                            continue; // skip setting new previous, because we successfully merged the new note into the previous message
+                        }
+                        else
+                        {
+                            yield return previous;
+                        }
+                    }
+                    previous = note;
+                }
+                else
+                {
+                    bool startsWithError = remainingMsg.StartsWith("error: ");
+                    string msg = remainingMsg.Substring((startsWithError ? 7 : 0), remainingMsg.Length - (startsWithError ? 7 : 0) - (errorCode != null ? 8 : 0));
+                    if (previous != null) yield return previous;
+                    previous = new RustcParsedMessage(RustcParsedMessageType.Error, msg, errorCode, match.Groups[1].Value,
+                        line, col, endLine, endCol);
+                }
+            }
+
+            if (previous != null) yield return previous;
+        }
+
+        private void LogRustcMessage(RustcParsedMessage msg)
+        {
+            if (msg.Type == RustcParsedMessageType.Warning)
+            {
+                this.Log.LogWarning(null, msg.ErrorCode, null, msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, msg.Message);
+            }
+            else if (msg.Type == RustcParsedMessageType.Note)
+            {
+                this.Log.LogWarning(null, msg.ErrorCode, null, msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, "note: " + msg.Message);
+            }
+            else
+            {
+                this.Log.LogError(null, msg.ErrorCode, null, msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, msg.Message);
             }
         }
     }

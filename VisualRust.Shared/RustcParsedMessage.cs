@@ -10,7 +10,8 @@ namespace VisualRust.Shared
     {
         Error,
         Warning,
-        Note
+        Note,
+        Help
     }
 
     public class RustcParsedMessage
@@ -23,6 +24,7 @@ namespace VisualRust.Shared
         public int ColumnNumber;
         public int EndLineNumber;
         public int EndColumnNumber;
+        public bool CanExplain; // TODO: currently we don't do anything with this
 
         public RustcParsedMessage(RustcParsedMessageType type, string message, string errorCode, string file,
             int lineNumber, int columnNumber, int endLineNumber, int endColumnNumber)
@@ -35,15 +37,17 @@ namespace VisualRust.Shared
             ColumnNumber = columnNumber;
             EndLineNumber = endLineNumber;
             EndColumnNumber = endColumnNumber;
+            CanExplain = false;
         }
 
         public bool TryMergeWithFollowing(RustcParsedMessage other)
         {
-            if (other.Type == RustcParsedMessageType.Note && other.File == this.File &&
-                other.LineNumber == this.LineNumber && other.ColumnNumber == this.ColumnNumber &&
+            if ((other.Type == RustcParsedMessageType.Note || other.Type == RustcParsedMessageType.Help)
+                && other.File == this.File && other.LineNumber == this.LineNumber && other.ColumnNumber == this.ColumnNumber &&
                 other.EndLineNumber == this.EndLineNumber && other.EndColumnNumber == this.EndColumnNumber)
             {
-                this.Message += "\nnote: " + other.Message;
+                var prefix = other.Type == RustcParsedMessageType.Note ? "\nnote: " : "\nhelp: ";
+                this.Message += prefix + other.Message;
                 return true;
             }
             else
