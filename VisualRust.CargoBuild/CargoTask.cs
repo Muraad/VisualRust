@@ -37,47 +37,33 @@ namespace VisualRust.CargoBuild
         {
             bool result = true;
             string errorOutput = String.Empty;
-            Log.LogMessage("Confing            = " + Configuration);
-            Log.LogMessage("WorkingDirectory   = " + WorkingDirectory);
-            Log.LogMessage("OutputType         = " + OutputType);
             Process process = null;
             switch(Configuration)
             {
                 case "Build":
-                    this.Log.LogCommandLine("Starting Cargo build at " + DateTime.Now.ToLongTimeString());
                     process = CallCargoProcess(workingDir => Cargo.Build(workingDir), "Build");
                     break;
                 case "Run":
-                    Log.LogCommandLine("Starting Cargo run at " + DateTime.Now.ToLongTimeString());
-                    process = CallCargoProcess(workingDir => Cargo.Run(workingDir), "Run");
+                    process = CallCargoProcess(workingDir => Cargo.Run(workingDir, true, false, true, false), "Run");
                     break;
                 case "Update":
-                    Log.LogCommandLine("Starting Cargo update at " + DateTime.Now.ToLongTimeString());
                     process = CallCargoProcess(workingDir => Cargo.Update(workingDir), "Update");
                     break;
                 case "Test":
-                    this.Log.LogCommandLine("Starting Cargo test at " + DateTime.Now.ToLongTimeString());
                     process = CallCargoProcess(workingDir => Cargo.Test(workingDir), "Test");
                     break;
                 case "Bench":
-                    this.Log.LogCommandLine("Starting Cargo bench at " + DateTime.Now.ToLongTimeString());
                     process = CallCargoProcess(workingDir => Cargo.Bench(workingDir), "Bench");
                     break;
                 case "Release":
-                    this.Log.LogCommandLine("Starting Cargo build --release at " + DateTime.Now.ToLongTimeString());
                     process = CallCargoProcess(workingDir => Cargo.Release(workingDir), "Release");
                     break;
                 case "Clean":
-                    this.Log.LogCommandLine("Starting Cargo clean at " + DateTime.Now.ToLongTimeString());
                     process = CallCargoProcess(workingDir => Cargo.Clean(workingDir), "Clean");
                     break;
-                default: 
-                    Log.LogCommandLine("Unknown configuration " + DateTime.Now.ToLongTimeString());
-                    Log.LogError("Unknown configuration detected :(");
+                default:
+                    Log.LogError("Unknown configuration detected :( Configuration = " + Configuration);
                     break;
-                //case "CargoRelease":
-                //    HandleProcess(Shared.Cargo.(WorkingDirectory));
-                //    break;
             }
             if (process != null)
             {
@@ -88,17 +74,13 @@ namespace VisualRust.CargoBuild
 
         System.Threading.AutoResetEvent finishedEvent = new System.Threading.AutoResetEvent(false);
 
-        public Process CallCargoProcess(Func<string, Process> cargoFunc, string taskName, bool printBuildOutput = true, Action<int> exitCodeCallBack = null)
+        public Process CallCargoProcess(Func<string, Process> cargoFunc, string taskName, bool printBuildOutput = true)
         {
-            exitCodeCallBack = exitCode =>
-            {
-                finishedEvent.Set();
-            };
+            Action<int> exitCodeCallBack = exitCode => finishedEvent.Set();
 
             if (printBuildOutput)
             {
-                Log.LogCommandLine(String.Format("------------------------- Cargo {0} -------------------------\n", taskName));
-                Log.LogCommandLine(String.Format("Starting {0} ...", taskName));
+                LogCriticalMessage(String.Format("------------------------- Cargo {0} at {1} -------------------------\n", taskName, DateTime.Now.ToLongTimeString()));
             }
 
             // Call the cargo function with current working directory as argument
@@ -113,8 +95,6 @@ namespace VisualRust.CargoBuild
                 HandleProcess(taskName, process, printBuildOutput, exitCodeCallBack);
             }
 
-            if (printBuildOutput)
-                Log.LogCommandLine("-------------------------------------------------------------\n\n");
             return process.Item1;
         }
 
@@ -131,9 +111,6 @@ namespace VisualRust.CargoBuild
         void HandleProcess(
             string taskName, Tuple<Process, Exception> process, bool printBuildOutput = true, Action<int> exitCodeCallBack = null)
         {
-            if (printBuildOutput)
-                Log.LogCommandLine("Started at " + process.Item1.StartTime.ToLongTimeString());
-
             // Start redirecting the set Outputs of the process to the build pane
             // Wait for all to complete, then print finish message and check for exceptions
             WaitAllNotNull(RedirectOutputsIfNeeded(taskName, process.Item1, printBuildOutput))
@@ -152,7 +129,8 @@ namespace VisualRust.CargoBuild
 
                     if (printBuildOutput)
                     {
-                        Log.LogCommandLine("Finished at " + DateTime.Now.ToLongTimeString());
+                        LogCriticalMessage("Finished at " + DateTime.Now.ToLongTimeString());
+                        LogCriticalMessage("-------------------------------------------------------------\n\n");
                     }
                 });
         }
@@ -181,16 +159,17 @@ namespace VisualRust.CargoBuild
                 string output = reader.ReadToEnd();
                 var rustMessages = RustcOutputProcessor.ParseOutput(output);
 
-                if (printBuildOutput)
-                    Log.LogCommandLine(output);
-
+                LogCriticalMessage(output);
                 foreach (var msg in rustMessages)
                 {
                     Log.LogError("Rust", msg.ErrorCode, "", msg.File, msg.LineNumber, msg.ColumnNumber, msg.EndLineNumber, msg.EndColumnNumber, msg.Message);
-                    //if (printRustcParsedMessages)
-                    //    Log.LogCommandLine(msg.ToString());
                 }
             });
+        }
+
+        private void LogCriticalMessage(string msg)
+        {
+            Log.LogCriticalMessage("Rust", "", "", "", 0, 0, 0, 0, msg);
         }
 
         Task WaitAllNotNull(params Task[] tasks)

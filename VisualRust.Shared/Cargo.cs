@@ -16,16 +16,21 @@ namespace VisualRust.Shared
     {
         public static readonly string RUST_PATH = Environment.FindInstallPathOld("default");
 
-        public static Process Run(string workingDir, bool createWindow = true)
+        public static Process Run(
+            string workingDir, 
+            bool createWindow = true, 
+            bool useShellExecute = true, 
+            bool redirectStdError = false,
+            bool redirectStdOutput = false)
         {
             Debug.WriteLine("Cargo.Run(" + workingDir + ")");
             return Start(
                 workingDir,
                 "run",
                 createWindow,
-                useShellExecute: true,
-                redirectStandardError: false, 
-                redirectStandardOutput:false);
+                useShellExecute,
+                redirectStdError, 
+                redirectStdOutput);
         }
 
         public static Process Build(string workingDir, bool printBuildOutput = true)
