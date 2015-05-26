@@ -14,6 +14,8 @@ using Microsoft.VisualStudio.Text.Editor;
 using VisualRust.Project;
 using Microsoft.VisualStudioTools.Project;
 using Microsoft.VisualStudioTools.Project.Automation;
+using VisualRust.Options;
+using Microsoft.VisualStudio.ComponentModelHost;
 
 using System.Collections.Generic;
 using VisualRust.Shared;
@@ -36,7 +38,7 @@ namespace VisualRust
     [PackageRegistration(UseManagedResourcesOnly = true)]
     // This attribute is used to register the information needed to show this package
     // in the Help/About dialog of Visual Studio.
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "0.1", IconResourceID = 400)]
     [ProvideLanguageService(typeof(RustLanguage), "Rust", 100, 
         CodeSense = true, 
         DefaultToInsertSpaces = true,
@@ -66,10 +68,16 @@ namespace VisualRust
     [Guid(GuidList.guidVisualRustPkgString)]
     [ProvideObject(typeof(Project.Forms.ApplicationPropertyPage))]
     [ProvideObject(typeof(Project.Forms.BuildPropertyPage))]
+    [ProvideOptionPage(typeof(RustOptionsPage), "Visual Rust", "General", 110, 110, true)]
+    [ProvideProfile(typeof(RustOptionsPage), "Visual Rust", "General", 110, 110, true)]
     public class VisualRustPackage : CommonProjectPackage
     {
         private RunningDocTableEventsListener docEventsListener;
+<<<<<<< HEAD
         private CargoMenuHandler cargoMenuHandler = new CargoMenuHandler();
+=======
+        internal static VisualRustPackage Instance { get; private set; }
+>>>>>>> 97f979be89b60f5da4f46886d5157a329f7007c1
 
         /// <summary>
         /// Default constructor of the package.
@@ -114,8 +122,14 @@ namespace VisualRust
         protected override void Initialize()
         {
             base.Initialize();
+<<<<<<< HEAD
             //WorkerPoolTest();
+=======
+            Instance = this;
+
+>>>>>>> 97f979be89b60f5da4f46886d5157a329f7007c1
             docEventsListener = new RunningDocTableEventsListener((IVsRunningDocumentTable)GetService(typeof(SVsRunningDocumentTable)));
+
             Racer.AutoCompleter.Init();
             
             cargoMenuHandler.Init(GetService(typeof(IMenuCommandService)) as OleMenuCommandService, this);
@@ -156,17 +170,17 @@ namespace VisualRust
 
         public override string GetProductName()
         {
-            throw new NotImplementedException();
+            return "Visual Rust";
         }
 
         public override string GetProductDescription()
         {
-            throw new NotImplementedException();
+            return "Visual Studio integration for the Rust programming language (http://www.rust-lang.org/)";
         }
 
         public override string GetProductVersion()
         {
-            throw new NotImplementedException();
+            return "0.1";
         }
     }
 }

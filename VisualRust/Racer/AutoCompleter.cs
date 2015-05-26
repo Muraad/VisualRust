@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EnvDTE;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -16,9 +17,13 @@ namespace VisualRust.Racer
     /// </remarks>
     public class AutoCompleter
     {
-        private const string RacerExecutable = "racer.exe";
+        private const string SystemRacerExecutable = "racer.exe";
+        private const string BundledRacerExecutable = "racer-bf2373e.exe";
+        private const string RacerSourceEnviromentVariable = "RUST_SRC_PATH";
         private const int TimeoutMillis = 3000;
-        private readonly string racerPath;
+
+        private string racerPathForExecution;
+        private string racerSourcesLocation;
 
         private static AutoCompleter instance;
 
@@ -42,11 +47,12 @@ namespace VisualRust.Racer
         public static void Init()
         {
             if (instance == null)
-                instance = new AutoCompleter();            
-        }       
+                instance = new AutoCompleter();
+        }
 
         private AutoCompleter()
         {
+<<<<<<< HEAD
             // Check for the source dir env var required by racer.
             string rustSrcPath = Environment.GetEnvironmentVariable("RUST_SRC_PATH");
             if (string.IsNullOrEmpty(rustSrcPath) || !Directory.Exists(rustSrcPath))
@@ -60,10 +66,28 @@ namespace VisualRust.Racer
                 racerPath = RacerExecutable;
                 ProjectUtil.PrintToOutput("Using racer.exe found in PATH");
             }
+=======
+        }
+
+        private T GetVisualRustProperty<T>(DTE env, string key)
+        {
+            return (T)env.get_Properties("Visual Rust", "General").Item(key).Value;
+        }
+
+        private void ReinitializeRacerPaths()
+        {
+            DTE env = (DTE)VisualRustPackage.GetGlobalService(typeof(DTE));
+            // If path to racer.exe is specifed, use it
+            if(GetVisualRustProperty<bool>(env, "UseCustomRacer"))
+                racerPathForExecution = GetVisualRustProperty<string>(env, "CustomRacerPath");
+>>>>>>> 97f979be89b60f5da4f46886d5157a329f7007c1
             else
-            {
-                racerPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Racer", RacerExecutable);
-            }
+                racerPathForExecution = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Racer", BundledRacerExecutable);
+            // Same for custom RUST_SRC_PATH
+            if(GetVisualRustProperty<bool>(env, "UseCustomSources"))
+                racerSourcesLocation = GetVisualRustProperty<string>(env, "CustomSourcesPath");
+            else
+                racerSourcesLocation = null;
         }
 
         public static string Run(string args)
@@ -72,19 +96,19 @@ namespace VisualRust.Racer
         }
 
         private bool RacerExistsOnPath()
-        {        
+        {
             try
             {
                 using (new WindowsErrorMode(3))
                 using (var ps = new Process())
                 {
                     // Note: no attempt is made here to see if it is actually the racer.exe we want.
-                    ps.StartInfo.FileName = RacerExecutable;
+                    ps.StartInfo.FileName = SystemRacerExecutable;
                     ps.StartInfo.UseShellExecute = false;
                     ps.StartInfo.CreateNoWindow = true;
                     ps.Start();
                     ps.WaitForExit(1000);
-                }                
+                }
             }
             catch
             {
@@ -95,17 +119,21 @@ namespace VisualRust.Racer
 
         private string Exec(string args)
         {
+            ReinitializeRacerPaths();
             try
             {
                 using (new WindowsErrorMode(3))
                 using (Process process = new Process())
                 {
 
-                    process.StartInfo.FileName = racerPath;
+                    process.StartInfo.FileName = racerPathForExecution;
                     process.StartInfo.Arguments = args;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.CreateNoWindow = true;
+                    if(this.racerSourcesLocation != null)
+                        process.StartInfo.EnvironmentVariables[RacerSourceEnviromentVariable] = racerSourcesLocation;
+
                     process.Start();
 
                     string result = process.StandardOutput.ReadToEnd();

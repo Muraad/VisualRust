@@ -111,11 +111,6 @@ namespace VisualRust.Project
             get { return typeof(RustProjectFactory).GUID; }
         }
 
-        public override string ProjectType
-        {
-            get { return "Rust"; }
-        }
-
         public ImageHandler RustImageHandler
         {
             get
@@ -179,10 +174,23 @@ namespace VisualRust.Project
                 node.IsEntryPoint = true;
                 parent.AddChild(node);
             }
+            MarkEntryPointFolders(outputType);
             foreach (string file in ModuleTracker.ExtractReachableAndMakeIncremental())
             {
                 HierarchyNode parent = this.CreateFolderNodes(Path.GetDirectoryName(file), false);
                 parent.AddChild(CreateUntrackedNode(file));
+            }
+        }
+
+        private void MarkEntryPointFolders(string outputType)
+        {
+            HierarchyNode node = GetCrateFileNode(outputType);
+            while(true)
+            {
+                node = node.Parent;
+                if(!(node is RustFolderNode))
+                    break;
+                ((RustFolderNode)node).IsEntryPoint = true;
             }
         }
 
@@ -341,7 +349,7 @@ namespace VisualRust.Project
             if (element == null)
                 throw new ArgumentException("element");
             if (element is AllFilesProjectElement || !String.IsNullOrEmpty(element.ItemTypeName))
-                return new CommonFolderNode(this, element);
+                return new RustFolderNode(this, element);
             else
                 return new UntrackedFolderNode(this, element);
         }
@@ -378,6 +386,12 @@ namespace VisualRust.Project
             return new RustConfigProvider(this);
         }
 
+        public override int GetSpecificEditorType(string mkDocument, out Guid guidEditorType)
+        {
+            guidEditorType = new Guid();
+            return VSConstants.S_OK;
+        }
+
 #region Disable "Add references..."
         protected override ReferenceContainerNode CreateReferenceContainerNode()
         {
@@ -411,24 +425,28 @@ namespace VisualRust.Project
         }
 #endregion
 
+        // This is OK, because this function is only called by
+        // ProjectGuid getter, which we override anyway
         public override Type GetProjectFactoryType()
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
-
+        
+        // This is OK, because this function is only called by
+        // GetSpecificEditorType(...), which we override anyway
         public override Type GetEditorFactoryType()
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
 
         public override string GetProjectName()
         {
-            throw new NotImplementedException();
+            return "Rust";
         }
 
         public override string GetFormatList()
         {
-            throw new NotImplementedException();
+            return "Rust Project File (*.rsproj)\n*.rsproj";
         }
 
         public override Type GetGeneralPropertyPageType()
@@ -449,7 +467,7 @@ namespace VisualRust.Project
 
         internal override string IssueTrackerUrl
         {
-            get { throw new NotImplementedException(); }
+            get { return "http://github.com/PistonDevelopers/VisualRust/issues"; }
         }
 
         protected override Guid[] GetConfigurationDependentPropertyPages()

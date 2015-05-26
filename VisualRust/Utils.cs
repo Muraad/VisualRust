@@ -16,6 +16,8 @@ using Microsoft.VisualStudioTools;
 namespace VisualRust
 {
     using RustLexer;
+    using Microsoft.VisualStudio.Text;
+    using Antlr4.Runtime;
 
     static class Utils
     {
@@ -83,6 +85,8 @@ namespace VisualRust
             { RustLexer.COMMENT, RustTokenTypes.COMMENT },
             { RustLexer.BLOCK_COMMENT, RustTokenTypes.COMMENT },
             { RustLexer.DOC_BLOCK_COMMENT, RustTokenTypes.DOC_COMMENT },
+            { RustLexer.QUESTION, RustTokenTypes.OP },
+            { RustLexer.UTF8_BOM, RustTokenTypes.WHITESPACE }
         };
 
         // These keywords are from rustc /src/libsyntax/parse/token.rs, module keywords
@@ -141,6 +145,62 @@ namespace VisualRust
             "yield"
         };
 
+        private static readonly HashSet<string> primitiveTypes = new HashSet<string> {
+            // primitives
+            "bool",
+            "char",
+            "u8",
+            "i8",
+            "u16",
+            "i16",
+            "u32",
+            "i32",
+            "u64",
+            "i64",
+            "f32",
+            "f64",
+            "isize",
+            "usize",
+            "str"
+        };
+
+        private static readonly HashSet<string> wellKnownTypes = new HashSet<string> {
+            "Copy",
+            "Send",
+            "Sized",
+            "Sync",
+            "Drop",
+            "Fn",
+            "FnMut",
+            "FnOnce",
+            "Box",
+            "ToOwned",
+            "Clone",
+            "PartialEq",
+            "PartialOrd",
+            "Eq",
+            "Ord",
+            "AsRef",
+            "Into",
+            "From",
+            "Default",
+            "Iterator",
+            "Extend",
+            "IntoIterator",
+            "DoubleEndedIterator",
+            "ExactSizeIterator",
+            "Option",
+            "Some",
+            "Result",
+            "None",
+            "Ok",
+            "Err",
+            "SliceConcatExt",
+            "String",
+            "ToString",
+            "Vec",
+        };
+
         public static RustTokenTypes LexerTokenToRustToken(string text, int tok)
         {
             RustTokenTypes ty = _tt[tok];
@@ -149,6 +209,14 @@ namespace VisualRust
                 if (_kws.Contains(text))
                 {
                     ty = RustTokenTypes.KEYWORD;
+                }
+                else if(primitiveTypes.Contains(text))
+                {
+                    ty = RustTokenTypes.PRIMITIVE_TYPE;
+                }
+                else if(wellKnownTypes.Contains(text))
+                {
+                    ty = RustTokenTypes.TYPE;
                 }
                 else
                 {
@@ -179,6 +247,54 @@ namespace VisualRust
         {
             get { return _kws; }
         }
+<<<<<<< HEAD
+=======
+        
+        [Conditional("DEBUG")]
+        internal static void DebugPrintToOutput(string s, params object[] args)
+        {        
+            PrintToOutput("[DEBUG] "+s, args);
+        }
+
+        internal static void PrintToOutput(string s, params object[] args)
+        {
+            IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
+            Guid paneGuid = VSConstants.GUID_OutWindowGeneralPane;
+            IVsOutputWindowPane pane;
+            ErrorHandler.ThrowOnFailure(outWindow.CreatePane(paneGuid, "General", 1, 0));            
+            outWindow.GetPane(ref paneGuid, out pane);
+            pane.OutputString(string.Format("[VisualRust]: " + s, args) + "\n");
+            pane.Activate();
+        }
+
+        internal static Tuple<IToken, IToken> GetTokensAtPosition(SnapshotPoint snapshotPoint)
+        {
+            var line = snapshotPoint.GetContainingLine();
+            var tokens = Utils.LexString(line.GetText()).ToList();
+
+            if (tokens.Count == 0)
+                return Tuple.Create<IToken, IToken>(null, null);
+
+            int col = snapshotPoint.Position - line.Start.Position;
+
+            IToken leftToken;
+            IToken currentToken = tokens.FirstOrDefault(t => col > t.StartIndex && col <= t.StopIndex);
+
+            if (currentToken != null)
+            {
+                if (currentToken == tokens.First())
+                    leftToken = null;
+                else
+                    leftToken = tokens[tokens.IndexOf(currentToken) - 1];
+            }
+            else
+            {
+                leftToken = tokens.Last();
+            }
+
+            return Tuple.Create(leftToken, currentToken);
+        }
+>>>>>>> 97f979be89b60f5da4f46886d5157a329f7007c1
     }
 
     public class TemporaryFile : IDisposable
@@ -207,8 +323,8 @@ namespace VisualRust
 
         public void Dispose()
         {
-            if (!File.Exists(Path))                      
-                File.Delete(Path);            
+            if (File.Exists(Path))
+                File.Delete(Path);
         }
     }
 
