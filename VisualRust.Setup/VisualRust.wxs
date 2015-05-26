@@ -70,22 +70,14 @@
               Source="$(var.VisualRust.Build.TargetDir)VisualRust.Build.dll"
               KeyPath="yes" />
       </Component>
-<<<<<<< HEAD
       <Component Id="Cmp_VisualRust_CargoBuild_dll"
                  Guid="{1E89C29A-4EA5-443C-AACC-C7B3D49E629D}">
         <File Id="File_VisualRust_CargoBuild_dll"
               Source="$(var.VisualRust.CargoBuild.TargetDir)VisualRust.CargoBuild.dll"
               KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_VisualRust_Shared_dll"
-                 Guid="{250C2941-7DB0-4CC0-AA31-F4B0F4AA0DB0}">
-        <File Id="File_VisualRust_Shared_dll"
-              Source="$(var.VisualRust.Build.TargetDir)VisualRust.Shared.dll"
-              KeyPath="yes" />
-=======
       <Component Id="Cmp_VisualRust_Shared_dll_MSBuild" Guid="{B13DFA16-392F-4374-A21C-EEA1FDC3696E}">
         <File Id="File_VisualRust_Shared_dll_MSBuild" KeyPath="yes" Source="$(var.VisualRust.TargetDir)VisualRust.Shared.dll" />
->>>>>>> 4357561f809a64f321cf0e9041d037861059466a
       </Component>
     </ComponentGroup>
   </Product>

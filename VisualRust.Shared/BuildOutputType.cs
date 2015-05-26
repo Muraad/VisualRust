@@ -85,8 +85,10 @@ namespace VisualRust.Shared
             switch(val)
             {
                 case BuildOutputType.Application:
+                case BuildOutputType.CargoApplication:
                     return "main.rs";
                 case BuildOutputType.Library:
+                case BuildOutputType.CargoLibrary:
                     return "lib.rs";
                 default:
                     throw new ArgumentException(null, "val");

@@ -25,6 +25,10 @@ using VisualRust.Shared;
 
 namespace VisualRust
 {
+    /// <summary>
+    /// Class responsible for handling the cargo tool bar, the right click rust project
+    /// context menu integration and the toolbar custom command functionallity
+    /// </summary>
     public class CargoMenuHandler : IDisposable
     {
         int currentToolbarCmd; // The currently selected menu controller command
@@ -226,7 +230,6 @@ namespace VisualRust
 
         private void OnCmdArgsCombo(object sender, EventArgs e)
         {
-            // --- Some checks omitted
             OleMenuCmdEventArgs eventArgs = e as OleMenuCmdEventArgs;
             if (eventArgs != null)
             {
@@ -238,12 +241,10 @@ namespace VisualRust
                 }
                 else if (vOut != IntPtr.Zero)
                 {
-                    // --- The IDE requests for the current value
                     Marshal.GetNativeVariantForObject(currentCmdArgs, vOut);
                 }
                 else if (input != null)
                 {
-                    // --- New zoom value was selected or typed in
                     currentCmdArgs = input.ToString();
                 }
             }
