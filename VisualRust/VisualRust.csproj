@@ -178,13 +178,10 @@
       <DependentUpon>RustOptionsPageControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Guids.cs" />
-<<<<<<< HEAD
     <Compile Include="PkgCmdID.cs" />
-=======
     <Compile Include="Forms\RustOptionsPage.cs">
       <SubType>Component</SubType>
     </Compile>
->>>>>>> 97f979be89b60f5da4f46886d5157a329f7007c1
     <Compile Include="Racer\AutoCompleter.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>

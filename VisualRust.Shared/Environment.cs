@@ -11,10 +11,7 @@ namespace VisualRust.Shared
     public class Environment
     {
         private const string InnoPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Rust_is1";
-<<<<<<< HEAD
         private const string InnoKey = "InstallLocation";
-=======
->>>>>>> 97f979be89b60f5da4f46886d5157a329f7007c1
         private const string MozillaPath = @"Software\Mozilla Foundation";
         private const string install = "InstallLocation";
 
